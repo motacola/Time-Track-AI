@@ -1,24 +1,33 @@
-import { Plus } from "lucide-react"
+import { Suspense } from "react"
+import { createClient } from "@/lib/supabase/server"
+import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { LoadingFallback } from "@/components/ui/loading-fallback"
+import ProjectList from "@/components/project-list"
 
-import { Button } from "@/components/ui/button"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
-import { ProjectList } from "@/components/project-list"
-import { ProjectSearch } from "@/components/project-search"
+export default async function ProjectsPage() {
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
 
-export default function ProjectsPage() {
+  // Check if user is authenticated
+  const { data: sessionData } = await supabase.auth.getSession()
+
+  if (!sessionData.session) {
+    // User is not logged in, redirect to login
+    redirect("/login")
+  }
+
   return (
-    <DashboardShell>
-      <DashboardHeader heading="Projects" text="Manage your agency's projects and jobs">
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Project
-        </Button>
-      </DashboardHeader>
-      <div className="space-y-4">
-        <ProjectSearch />
-        <ProjectList />
+    <div className="container py-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Projects</h1>
       </div>
-    </DashboardShell>
+
+      <Suspense
+        fallback={<LoadingFallback title="Loading projects" description="Please wait while we fetch your projects" />}
+      >
+        <ProjectList />
+      </Suspense>
+    </div>
   )
 }
