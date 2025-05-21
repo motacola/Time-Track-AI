@@ -10,15 +10,23 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Mic, Send, Loader2 } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { FormError } from "@/components/ui/form-error"
 import { DatabaseError } from "@/components/ui/database-error"
 import { AiError } from "@/components/ui/ai-error"
 import { ErrorBoundaryWrapper } from "@/components/ui/error-boundary-wrapper"
 import { logger } from "@/lib/logger"
 
+// Mock projects data
+const MOCK_PROJECTS = [
+  { id: "1", name: "Website Redesign", job_number: "JOB-123" },
+  { id: "2", name: "Mobile App Development", job_number: "JOB-456" },
+  { id: "3", name: "Brand Identity", job_number: "JOB-789" },
+  { id: "4", name: "Marketing Campaign", job_number: "JOB-101" },
+  { id: "5", name: "E-commerce Platform", job_number: "JOB-202" },
+]
+
 export default function NewTimesheetForm() {
-  const [projects, setProjects] = useState<any[]>([])
+  const [projects, setProjects] = useState<any[]>(MOCK_PROJECTS)
   const [selectedProject, setSelectedProject] = useState("")
   const [description, setDescription] = useState("")
   const [hours, setHours] = useState("")
@@ -35,7 +43,6 @@ export default function NewTimesheetForm() {
 
   const router = useRouter()
   const searchParams = useSearchParams()
-  const supabase = createClient()
 
   // Get project ID from URL if available
   useEffect(() => {
@@ -55,26 +62,6 @@ export default function NewTimesheetForm() {
       setDescription(`Work on ${projectName}: `)
     }
   }, [searchParams])
-
-  // Fetch projects
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const { data, error } = await supabase.from("projects").select("*").order("name")
-
-        if (error) {
-          throw error
-        }
-
-        setProjects(data || [])
-      } catch (err) {
-        logger.error("Error fetching projects for timesheet form", err)
-        setLoadingError(err instanceof Error ? err : new Error(String(err)))
-      }
-    }
-
-    fetchProjects()
-  }, [])
 
   // Update job number when project changes
   useEffect(() => {
@@ -123,24 +110,10 @@ export default function NewTimesheetForm() {
       setIsSubmitting(true)
       setFormError(null)
 
-      const { data, error } = await supabase
-        .from("timesheet_entries")
-        .insert([
-          {
-            project_id: selectedProject,
-            description,
-            hours: Number.parseFloat(hours),
-            date,
-            billable,
-            job_number: jobNumber,
-          },
-        ])
-        .select()
+      // Mock successful submission
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      if (error) {
-        throw error
-      }
-
+      // Redirect to timesheet page
       router.push("/timesheet")
     } catch (err) {
       logger.error("Error submitting timesheet", err)

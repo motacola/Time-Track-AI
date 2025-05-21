@@ -3,13 +3,15 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import { Bot, Send, Mic, Briefcase, Clock, Sparkles } from "lucide-react"
+import { Bot, Send, Mic, Briefcase, Clock, Sparkles, Loader2, AlertCircle } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { createUserMessage, createAssistantMessage, sendChatMessage } from "@/lib/chat-utils"
 
 type Message = {
   id: string
@@ -20,6 +22,13 @@ type Message = {
     type: "timesheet" | "project" | "report" | "chart"
     data: any
   }[]
+}
+
+// Declare the webkitSpeechRecognition variable
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any
+  }
 }
 
 export function SmartAssistantChat() {
@@ -41,6 +50,8 @@ export function SmartAssistantChat() {
   const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -48,115 +59,82 @@ export function SmartAssistantChat() {
     }
   }, [messages])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
-      // Add user message
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: input,
-        role: "user",
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, userMessage])
-      setInput("")
-      setIsLoading(true)
+      try {
+        // Add user message
+        const userMessage = createUserMessage(input)
+        setMessages((prev) => [...prev, userMessage])
+        setInput("")
+        setIsLoading(true)
+        setError(null)
 
-      // Simulate AI response
-      setTimeout(() => {
-        const response: Message = {
-          id: (Date.now() + 1).toString(),
-          content: "",
-          role: "assistant",
-          timestamp: new Date(),
+        // Send to API
+        const result = await sendChatMessage(input, conversationId || undefined)
+
+        // Set conversation ID if not already set
+        if (!conversationId && result.conversationId) {
+          setConversationId(result.conversationId)
         }
 
-        // Simple pattern matching for demo purposes
-        const lowerInput = input.toLowerCase()
+        // Add assistant response
+        const assistantMessage = createAssistantMessage(result.response, result.action)
+        setMessages((prev) => [...prev, assistantMessage])
 
-        if (lowerInput.includes("log time") || lowerInput.includes("add hours")) {
-          response.content =
-            "I can help you log your time. What project did you work on, and how many hours would you like to log?"
-        } else if (lowerInput.includes("show projects") || lowerInput.includes("my projects")) {
-          response.content = "Here are the projects you're currently assigned to:"
-          response.attachments = [
-            {
-              type: "project",
-              data: [
-                { name: "Website Redesign - Acme Corp", role: "Designer", deadline: "Oct 15, 2024", progress: 75 },
-                {
-                  name: "Social Media Campaign - TechStart",
-                  role: "Copywriter",
-                  deadline: "Oct 18, 2024",
-                  progress: 60,
-                },
-                { name: "Brand Identity - FreshFoods", role: "Art Director", deadline: "Oct 22, 2024", progress: 40 },
-              ],
-            },
-          ]
-        } else if (lowerInput.includes("weekly summary") || lowerInput.includes("my hours")) {
-          response.content = "Here's your timesheet summary for this week:"
-          response.attachments = [
-            {
-              type: "timesheet",
-              data: {
-                totalHours: 32,
-                billableHours: 28,
-                projects: [
-                  { name: "Website Redesign - Acme Corp", hours: 12 },
-                  { name: "Social Media Campaign - TechStart", hours: 8 },
-                  { name: "Brand Identity - FreshFoods", hours: 6 },
-                  { name: "Internal Meetings", hours: 4, billable: false },
-                  { name: "Admin", hours: 2, billable: false },
-                ],
-              },
-            },
-          ]
-        } else if (lowerInput.includes("predict") || lowerInput.includes("forecast")) {
-          response.content =
-            "Based on current progress and historical data, here's my prediction for the Website Redesign project:"
-          response.attachments = [
-            {
-              type: "chart",
-              data: {
-                title: "Project Timeline Prediction",
-                prediction:
-                  "The project is likely to be completed 3 days after the deadline based on current velocity.",
-                recommendation:
-                  "Consider allocating 1-2 additional team members to the design phase to get back on schedule.",
-              },
-            },
-          ]
-        } else if (lowerInput.includes("productivity") || lowerInput.includes("insights")) {
-          response.content = "I've analyzed your work patterns and found some interesting insights:"
-          response.attachments = [
-            {
-              type: "chart",
-              data: {
-                title: "Productivity Insights",
-                insights: [
-                  "You're most productive between 9-11am, with 30% higher output than other times",
-                  "Task switching reduces your productivity by approximately 20%",
-                  "Design tasks take 15% longer when scheduled after client meetings",
-                ],
-                recommendation:
-                  "Try to schedule focused design work in the morning and batch meetings in the afternoon.",
-              },
-            },
-          ]
-        } else {
-          response.content =
-            "I'm here to help with timesheet management, project tracking, and providing insights. What would you like to know about?"
+        // If there was a successful timesheet entry, show a notification or update UI
+        if (result.action?.success && result.action?.data) {
+          // Could trigger a notification or update UI here
         }
-
-        setMessages((prev) => [...prev, response])
+      } catch (err) {
+        setError("Failed to get a response. Please try again.")
+        console.error("Chat error:", err)
+      } finally {
         setIsLoading(false)
-      }, 1500)
+      }
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSend()
+    }
+  }
+
+  const handleVoiceInput = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      setError("Voice input is not supported in your browser")
+      return
+    }
+
+    try {
+      setIsListening(true)
+
+      // @ts-ignore - WebkitSpeechRecognition is not in the types
+      const recognition = new window.webkitSpeechRecognition()
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = "en-US"
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript
+        setInput(transcript)
+        setIsListening(false)
+      }
+
+      recognition.onerror = () => {
+        setIsListening(false)
+        setError("Error recognizing speech. Please try again.")
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+      }
+
+      recognition.start()
+    } catch (err) {
+      setIsListening(false)
+      setError("Error starting voice recognition")
+      console.error("Voice recognition error:", err)
     }
   }
 
@@ -321,6 +299,13 @@ export function SmartAssistantChat() {
             </div>
           )}
 
+          {error && (
+            <Alert variant="destructive" className="py-2 px-3 text-xs">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
@@ -331,7 +316,7 @@ export function SmartAssistantChat() {
             variant="outline"
             size="icon"
             className={`${isListening ? "bg-red-100 text-red-500 border-red-200" : ""}`}
-            onClick={simulateVoiceInput}
+            onClick={handleVoiceInput}
           >
             <Mic className="h-4 w-4" />
             <span className="sr-only">Voice input</span>
@@ -345,7 +330,7 @@ export function SmartAssistantChat() {
             disabled={isListening}
           />
           <Button size="icon" onClick={handleSend} disabled={!input.trim() || isListening}>
-            <Send className="h-4 w-4" />
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send message</span>
           </Button>
         </div>

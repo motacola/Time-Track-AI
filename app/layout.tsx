@@ -1,7 +1,6 @@
 import type React from "react"
-import { Navbar } from "./components/navbar"
+import { NavbarWrapper } from "./components/navbar-wrapper"
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/contexts/auth-context"
 import "./globals.css"
 
 export const metadata = {
@@ -19,10 +18,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <AuthProvider>
-            <Navbar />
-            {children}
-          </AuthProvider>
+          <NavbarWrapper />
+          {children}
         </ThemeProvider>
       </body>
     </html>

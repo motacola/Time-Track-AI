@@ -1,964 +1,937 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
+  AlertCircle,
+  BarChart3,
+  RefreshCw,
+  TrendingDown,
+  TrendingUp,
+  Minus,
+  ChevronRight,
   Calendar,
-  Clock,
-  DollarSign,
   Users,
   ArrowRight,
-  Lightbulb,
-  TrendingUp,
-  AlertTriangle,
   CheckCircle2,
-  HelpCircle,
-  Brain,
-  Briefcase,
+  XCircle,
+  AlertTriangle,
+  Sparkles,
 } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-type PredictionType = "timeline" | "resources" | "revenue" | "trends"
-
 interface AiPredictionsProps {
-  type: PredictionType
+  type?: "timeline" | "resources" | "revenue" | "trends"
 }
 
-export function AiPredictions({ type }: AiPredictionsProps) {
-  const [expandedInsight, setExpandedInsight] = useState<string | null>(null)
+export function AiPredictions({ type = "timeline" }: AiPredictionsProps) {
+  const [predictions, setPredictions] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<string>(type)
 
-  const toggleInsight = (id: string) => {
-    if (expandedInsight === id) {
-      setExpandedInsight(null)
-    } else {
-      setExpandedInsight(id)
+  const fetchPredictions = async (predictionType: string) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      console.log(`Fetching predictions for type: ${predictionType}`)
+
+      // Add a small delay to simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      try {
+        const response = await fetch(`/api/predictions?type=${predictionType}`)
+
+        if (!response.ok) {
+          console.error("API response error:", response.status)
+          throw new Error(`Failed to fetch ${predictionType} predictions: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+        console.log("Predictions data received:", data)
+
+        if (!data || !data.predictions) {
+          throw new Error("Invalid response format from predictions API")
+        }
+
+        setPredictions(data.predictions)
+      } catch (fetchError) {
+        console.error(`Error fetching ${predictionType} predictions:`, fetchError)
+
+        // Use fallback mock data if the API call fails
+        setPredictions({
+          topProjects: "Unable to predict top projects at this time.",
+          weeklyHours: "Weekly hour predictions unavailable.",
+          conflicts: "Scheduling conflict analysis unavailable.",
+          recommendations: "Try again later for personalized recommendations.",
+          projectData: getMockProjectData(),
+        })
+
+        setError(`Failed to load predictions. Using fallback data.`)
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const renderTimelinePredictions = () => (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">Website Redesign - Acme Corp</CardTitle>
-              <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                At Risk
-              </Badge>
-            </div>
-            <CardDescription>Predicted completion: Oct 20, 2024 (5 days late)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Current Progress</span>
-                  <span className="font-medium">75%</span>
-                </div>
-                <Progress value={75} className="h-2" />
-              </div>
+  useEffect(() => {
+    fetchPredictions(activeTab)
+  }, [activeTab])
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Expected Progress at This Point</span>
-                  <span className="font-medium">85%</span>
-                </div>
-                <Progress value={85} className="h-2 bg-muted/50" />
-              </div>
+  const handleRefresh = () => {
+    fetchPredictions(activeTab)
+  }
 
-              {expandedInsight === "acme" && (
-                <div className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Original Deadline</div>
-                      <div className="font-medium">Oct 15, 2024</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Predicted Completion</div>
-                      <div className="font-medium">Oct 20, 2024</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Current Velocity</div>
-                      <div className="font-medium">4.2% / day</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Required Velocity</div>
-                      <div className="font-medium">6.3% / day</div>
-                    </div>
-                  </div>
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+  }
 
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium text-amber-700">Risk Factors:</span>
-                        <ul className="mt-1 space-y-1 text-amber-700">
-                          <li>Design revisions taking longer than estimated</li>
-                          <li>Developer availability reduced due to parallel projects</li>
-                          <li>Client feedback delays in approval process</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case "increasing":
+        return <TrendingUp className="h-4 w-4 text-green-500" />
+      case "decreasing":
+        return <TrendingDown className="h-4 w-4 text-red-500" />
+      default:
+        return <Minus className="h-4 w-4 text-gray-500" />
+    }
+  }
 
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">AI Recommendation:</span> Allocate 2 additional developers for the
-                        next 5 days to increase velocity, or discuss a timeline extension with the client.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button variant="ghost" size="sm" onClick={() => toggleInsight("acme")} className="w-full justify-between">
-              {expandedInsight === "acme" ? "Show Less" : "View Details"}
-              <ArrowRight className={`h-4 w-4 transition-transform ${expandedInsight === "acme" ? "rotate-90" : ""}`} />
-            </Button>
-          </CardFooter>
-        </Card>
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "good":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      case "warning":
+        return <AlertTriangle className="h-4 w-4 text-amber-500" />
+      case "critical":
+        return <XCircle className="h-4 w-4 text-red-500" />
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />
+    }
+  }
 
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">Social Media Campaign - TechStart</CardTitle>
-              <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                On Track
-              </Badge>
-            </div>
-            <CardDescription>Predicted completion: Oct 17, 2024 (1 day early)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Current Progress</span>
-                  <span className="font-medium">60%</span>
-                </div>
-                <Progress value={60} className="h-2" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Expected Progress at This Point</span>
-                  <span className="font-medium">55%</span>
-                </div>
-                <Progress value={55} className="h-2 bg-muted/50" />
-              </div>
-
-              {expandedInsight === "techstart" && (
-                <div className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Original Deadline</div>
-                      <div className="font-medium">Oct 18, 2024</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Predicted Completion</div>
-                      <div className="font-medium">Oct 17, 2024</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Current Velocity</div>
-                      <div className="font-medium">5.8% / day</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Required Velocity</div>
-                      <div className="font-medium">5.0% / day</div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium text-green-700">Success Factors:</span>
-                        <ul className="mt-1 space-y-1 text-green-700">
-                          <li>Copywriting completed ahead of schedule</li>
-                          <li>Client provided assets promptly</li>
-                          <li>Team has prior experience with similar campaigns</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">AI Recommendation:</span> Consider reallocating some resources to
-                        the Website Redesign project while maintaining current velocity.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleInsight("techstart")}
-              className="w-full justify-between"
-            >
-              {expandedInsight === "techstart" ? "Show Less" : "View Details"}
-              <ArrowRight
-                className={`h-4 w-4 transition-transform ${expandedInsight === "techstart" ? "rotate-90" : ""}`}
-              />
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            How AI Predicts Project Timelines
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Historical Data Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                Our AI analyzes past projects to identify patterns in completion times and potential bottlenecks.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Velocity Tracking</h3>
-              <p className="text-sm text-muted-foreground">
-                By measuring your team's current work rate, AI can project accurate completion dates.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <AlertTriangle className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Risk Assessment</h3>
-              <p className="text-sm text-muted-foreground">
-                AI identifies potential risks that could impact timelines and suggests mitigation strategies.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  const renderResourcePredictions = () => (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">Team Capacity Forecast</CardTitle>
-              <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
-                Over Capacity
-              </Badge>
-            </div>
-            <CardDescription>November 2024 resource allocation prediction</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Design Team Capacity</span>
-                  <span className="font-medium">85%</span>
-                </div>
-                <Progress value={85} className="h-2" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Development Team Capacity</span>
-                  <span className="font-medium text-red-500">132%</span>
-                </div>
-                <Progress value={100} className="h-2 bg-red-200" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Marketing Team Capacity</span>
-                  <span className="font-medium">70%</span>
-                </div>
-                <Progress value={70} className="h-2" />
-              </div>
-
-              {expandedInsight === "capacity" && (
-                <div className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Development Capacity</div>
-                      <div className="font-medium">160 hrs/week</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Projected Demand</div>
-                      <div className="font-medium text-red-500">212 hrs/week</div>
-                    </div>
-                  </div>
-
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium text-red-700">Resource Conflicts:</span>
-                        <ul className="mt-1 space-y-1 text-red-700">
-                          <li>3 major projects with overlapping development phases</li>
-                          <li>2 developers scheduled for vacation in November</li>
-                          <li>New project onboarding requiring significant resources</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">AI Recommendations:</span>
-                        <ul className="mt-1 space-y-1">
-                          <li>Hire 2 contract developers for November-December</li>
-                          <li>Reschedule 30% of development work to December-January</li>
-                          <li>Prioritize critical path tasks and delay non-essential features</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleInsight("capacity")}
-              className="w-full justify-between"
-            >
-              {expandedInsight === "capacity" ? "Show Less" : "View Details"}
-              <ArrowRight
-                className={`h-4 w-4 transition-transform ${expandedInsight === "capacity" ? "rotate-90" : ""}`}
-              />
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">Skill Gap Analysis</CardTitle>
-              <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                Action Needed
-              </Badge>
-            </div>
-            <CardDescription>Identified skill shortages based on upcoming projects</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Motion Graphics</span>
-                  <span className="font-medium text-amber-500">Skill Gap</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Progress value={40} className="h-2 flex-1" />
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-xs">Tasks taking 40% longer than estimated</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>3D Modeling</span>
-                  <span className="font-medium text-amber-500">Skill Gap</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Progress value={35} className="h-2 flex-1" />
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-xs">Limited in-house expertise for upcoming 3D projects</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-              </div>
-
-              {expandedInsight === "skill-gap" && (
-                <div className="space-y-4 mt-4">
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium text-amber-700">Impact Analysis:</span>
-                        <ul className="mt-1 space-y-1 text-amber-700">
-                          <li>Motion graphics tasks taking 40% longer than estimated</li>
-                          <li>3D modeling requirements increasing with upcoming projects</li>
-                          <li>Current team lacks specialized expertise in these areas</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">AI Recommendations:</span>
-                        <ul className="mt-1 space-y-1">
-                          <li>Invest in motion graphics training for your design team</li>
-                          <li>Hire a specialized 3D modeling contractor for upcoming projects</li>
-                          <li>Consider partnering with a specialized studio for complex 3D work</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleInsight("skill-gap")}
-              className="w-full justify-between"
-            >
-              {expandedInsight === "skill-gap" ? "Show Less" : "View Details"}
-              <ArrowRight
-                className={`h-4 w-4 transition-transform ${expandedInsight === "skill-gap" ? "rotate-90" : ""}`}
-              />
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            How AI Optimizes Resource Allocation
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Capacity Planning</h3>
-              <p className="text-sm text-muted-foreground">
-                AI analyzes your team's availability and workload to identify potential bottlenecks before they occur.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Brain className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Skill Matching</h3>
-              <p className="text-sm text-muted-foreground">
-                Our AI identifies the optimal team members for each task based on skills and experience.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Lightbulb className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Proactive Solutions</h3>
-              <p className="text-sm text-muted-foreground">
-                Get actionable recommendations to address resource constraints before they impact your projects.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  const renderRevenuePredictions = () => (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">Q4 Revenue Forecast</CardTitle>
-              <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                Growth Predicted
-              </Badge>
-            </div>
-            <CardDescription>Projected revenue based on current projects and pipeline</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Q3 Revenue (Baseline)</span>
-                  <span className="font-medium">100%</span>
-                </div>
-                <Progress value={100} className="h-2" />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Q4 Projected Revenue</span>
-                  <span className="font-medium text-green-500">118%</span>
-                </div>
-                <Progress value={118} className="h-2" />
-              </div>
-
-              {expandedInsight === "revenue" && (
-                <div className="space-y-4 mt-4">
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <span className="text-xs text-muted-foreground">October</span>
-                      <Progress value={105} className="h-2 mt-1" />
-                      <span className="text-xs font-medium">+5%</span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">November</span>
-                      <Progress value={115} className="h-2 mt-1" />
-                      <span className="text-xs font-medium">+15%</span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-muted-foreground">December</span>
-                      <Progress value={135} className="h-2 mt-1" />
-                      <span className="text-xs font-medium">+35%</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Q3 Revenue</div>
-                      <div className="font-medium">$320,000</div>
-                    </div>
-                    <div className="bg-muted/50 p-3 rounded-lg">
-                      <div className="text-muted-foreground mb-1">Q4 Projected</div>
-                      <div className="font-medium text-green-500">$377,600</div>
-                    </div>
-                  </div>
-
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium text-green-700">Growth Drivers:</span>
-                        <ul className="mt-1 space-y-1 text-green-700">
-                          <li>3 new client contracts signed in Q3</li>
-                          <li>Seasonal increase in marketing projects in December</li>
-                          <li>Expanded services offering with higher margins</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">AI Recommendations:</span>
-                        <ul className="mt-1 space-y-1">
-                          <li>Plan for increased capacity in December to handle the projected workload</li>
-                          <li>Consider year-end bonuses based on the strong Q4 performance</li>
-                          <li>Reinvest 15% of the growth into expanding high-margin service offerings</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleInsight("revenue")}
-              className="w-full justify-between"
-            >
-              {expandedInsight === "revenue" ? "Show Less" : "View Details"}
-              <ArrowRight
-                className={`h-4 w-4 transition-transform ${expandedInsight === "revenue" ? "rotate-90" : ""}`}
-              />
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">Client Revenue Potential</CardTitle>
-              <Badge variant="outline" className="bg-primary/10">
-                Opportunities
-              </Badge>
-            </div>
-            <CardDescription>AI-identified revenue growth opportunities by client</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Acme Corp</span>
-                  <span className="font-medium">Current: $120K / Potential: $150K</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Progress value={80} className="h-2 flex-1" />
-                  <span className="text-xs text-green-500">+25%</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>TechStart</span>
-                  <span className="font-medium">Current: $85K / Potential: $110K</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Progress value={77} className="h-2 flex-1" />
-                  <span className="text-xs text-green-500">+29%</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>FreshFoods</span>
-                  <span className="font-medium">Current: $65K / Potential: $75K</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Progress value={87} className="h-2 flex-1" />
-                  <span className="text-xs text-green-500">+15%</span>
-                </div>
-              </div>
-
-              {expandedInsight === "client-revenue" && (
-                <div className="space-y-4 mt-4">
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">Growth Opportunities:</span>
-                        <ul className="mt-1 space-y-1">
-                          <li>
-                            <span className="font-medium">Acme Corp:</span> Expand into video production services
-                            (+$30K)
-                          </li>
-                          <li>
-                            <span className="font-medium">TechStart:</span> Propose annual retainer for ongoing support
-                            (+$25K)
-                          </li>
-                          <li>
-                            <span className="font-medium">FreshFoods:</span> Add social media management to current
-                            services (+$10K)
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-muted/50 p-3 rounded-lg text-sm">
-                    <div className="flex items-start gap-2">
-                      <TrendingUp className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                      <div>
-                        <span className="font-medium">AI Analysis:</span> Based on client spending patterns, service
-                        utilization, and industry benchmarks, these clients are likely to increase their budgets if
-                        presented with targeted service expansions.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleInsight("client-revenue")}
-              className="w-full justify-between"
-            >
-              {expandedInsight === "client-revenue" ? "Show Less" : "View Details"}
-              <ArrowRight
-                className={`h-4 w-4 transition-transform ${expandedInsight === "client-revenue" ? "rotate-90" : ""}`}
-              />
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-primary" />
-            How AI Forecasts Revenue
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Trend Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                AI identifies patterns in your historical revenue data to predict future performance.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Briefcase className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Pipeline Assessment</h3>
-              <p className="text-sm text-muted-foreground">
-                Our AI evaluates your current project pipeline and client relationships to forecast revenue.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <DollarSign className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Growth Opportunities</h3>
-              <p className="text-sm text-muted-foreground">
-                AI identifies untapped revenue potential with existing clients and suggests expansion strategies.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
-
-  const renderTrendsPredictions = () => (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Industry Trends Analysis</CardTitle>
-          <CardDescription>AI-powered analysis of industry trends relevant to your agency</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Emerging Service Demands</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">AI Content Creation</h4>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                      High Growth
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Demand for AI-assisted content creation services is growing rapidly as businesses seek to scale
-                    content production.
-                  </p>
-                  <div className="text-sm bg-primary/5 p-2 rounded border border-primary/20">
-                    <span className="font-medium">Opportunity:</span> Develop AI content creation services to complement
-                    your existing creative offerings.
-                  </div>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">Interactive Experiences</h4>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                      Growing
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Clients are increasingly requesting interactive web experiences and immersive content over static
-                    designs.
-                  </p>
-                  <div className="text-sm bg-primary/5 p-2 rounded border border-primary/20">
-                    <span className="font-medium">Opportunity:</span> Expand capabilities in interactive design and
-                    development to meet this demand.
-                  </div>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">Data Visualization</h4>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                      Steady Growth
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Companies are seeking better ways to visualize and communicate complex data to their audiences.
-                  </p>
-                  <div className="text-sm bg-primary/5 p-2 rounded border border-primary/20">
-                    <span className="font-medium">Opportunity:</span> Develop specialized data visualization services
-                    for marketing and reporting.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Pricing & Business Model Trends</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">Value-Based Pricing</h4>
-                    <Badge variant="outline" className="bg-primary/10">
-                      Industry Shift
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Agencies are moving away from hourly billing toward value-based pricing models that better align
-                    with client outcomes.
-                  </p>
-                  <div className="text-sm bg-primary/5 p-2 rounded border border-primary/20">
-                    <span className="font-medium">AI Recommendation:</span> Consider transitioning 25% of your projects
-                    to value-based pricing in the next quarter.
-                  </div>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">Subscription Services</h4>
-                    <Badge variant="outline" className="bg-primary/10">
-                      Growing Adoption
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Recurring revenue models through service subscriptions are becoming more common in the agency space.
-                  </p>
-                  <div className="text-sm bg-primary/5 p-2 rounded border border-primary/20">
-                    <span className="font-medium">AI Recommendation:</span> Develop a tiered subscription model for
-                    ongoing services like content creation and social media management.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-lg font-medium">Technology Adoption</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="font-medium mb-2">AI & Automation</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Industry Adoption</span>
-                      <span className="font-medium">68%</span>
-                    </div>
-                    <Progress value={68} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
-                      Agencies using AI tools for content creation, data analysis, and workflow automation
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="font-medium mb-2">No-Code Tools</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Industry Adoption</span>
-                      <span className="font-medium">72%</span>
-                    </div>
-                    <Progress value={72} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
-                      Agencies using no-code tools to accelerate development and reduce technical overhead
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="font-medium mb-2">Virtual Collaboration</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Industry Adoption</span>
-                      <span className="font-medium">85%</span>
-                    </div>
-                    <Progress value={85} className="h-2" />
-                    <p className="text-xs text-muted-foreground">
-                      Agencies using advanced virtual collaboration tools for remote and hybrid teams
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            How AI Identifies Industry Trends
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Brain className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Market Intelligence</h3>
-              <p className="text-sm text-muted-foreground">
-                Our AI analyzes industry publications, research reports, and market data to identify emerging trends.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Competitive Analysis</h3>
-              <p className="text-sm text-muted-foreground">
-                AI monitors competitor activities and service offerings to help you stay ahead of industry shifts.
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-2 p-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Lightbulb className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-medium">Opportunity Identification</h3>
-              <p className="text-sm text-muted-foreground">
-                Based on your agency's strengths and market trends, AI identifies specific growth opportunities.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+  // Generate mock project data if none is available
+  const getMockProjectData = () => {
+    return [
+      {
+        id: "1",
+        name: "Website Redesign",
+        client: "Acme Corp",
+        totalHours: 120,
+        weeklyAverage: 20,
+        trend: "increasing",
+        status: "good",
+        jobNumber: "1234-ACME",
+        dueDate: "2025-06-15",
+        completion: 65,
+      },
+      {
+        id: "2",
+        name: "Marketing Campaign",
+        client: "XYZ Inc",
+        totalHours: 80,
+        weeklyAverage: 15,
+        trend: "stable",
+        status: "warning",
+        jobNumber: "5678-XYZ",
+        dueDate: "2025-05-30",
+        completion: 42,
+      },
+      {
+        id: "3",
+        name: "Mobile App Development",
+        client: "123 Industries",
+        totalHours: 200,
+        weeklyAverage: 25,
+        trend: "decreasing",
+        status: "critical",
+        jobNumber: "9012-123I",
+        dueDate: "2025-06-10",
+        completion: 28,
+      },
+      {
+        id: "4",
+        name: "Brand Strategy",
+        client: "Global Solutions",
+        totalHours: 60,
+        weeklyAverage: 10,
+        trend: "increasing",
+        status: "good",
+        jobNumber: "3456-GLOB",
+        dueDate: "2025-07-01",
+        completion: 85,
+      },
+      {
+        id: "5",
+        name: "Content Creation",
+        client: "Media Group",
+        totalHours: 40,
+        weeklyAverage: 8,
+        trend: "stable",
+        status: "warning",
+        jobNumber: "7890-MEDI",
+        dueDate: "2025-06-05",
+        completion: 50,
+      },
+    ]
+  }
 
   const renderContent = () => {
-    switch (type) {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">
+          <Skeleton className="h-24 w-full" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+          <Skeleton className="h-24 w-full" />
+        </div>
+      )
+    }
+
+    // Use mock data if predictions are missing or invalid
+    const projectData = predictions?.projectData?.length > 0 ? predictions.projectData : getMockProjectData()
+
+    // Different content based on prediction type
+    switch (activeTab) {
       case "timeline":
-        return renderTimelinePredictions()
+        return renderTimelinePredictions(projectData)
       case "resources":
-        return renderResourcePredictions()
+        return renderResourcePredictions(projectData)
       case "revenue":
-        return renderRevenuePredictions()
+        return renderRevenuePredictions(projectData)
       case "trends":
-        return renderTrendsPredictions()
+        return renderTrendPredictions(projectData)
       default:
-        return renderTimelinePredictions()
+        return renderTimelinePredictions(projectData)
     }
   }
 
-  return renderContent()
+  const renderTimelinePredictions = (projectData: any[]) => {
+    return (
+      <div className="space-y-6">
+        {/* Project Forecast */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium">Project Timeline Forecast</h3>
+            <Badge variant="outline" className="text-xs font-normal">
+              <Sparkles className="h-3 w-3 mr-1 text-amber-500" />
+              AI Generated
+            </Badge>
+          </div>
+          <ScrollArea className="h-[320px] pr-4">
+            <div className="space-y-3">
+              {projectData.map((project: any, index: number) => (
+                <Card key={index} className="overflow-hidden">
+                  <CardHeader className="p-3 pb-2 flex flex-row items-center justify-between">
+                    <div>
+                      <div className="font-medium text-sm flex items-center gap-1.5">
+                        {getStatusIcon(project.status)}
+                        {project.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Client: {project.client} | Job: {project.jobNumber}
+                      </div>
+                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center gap-1 text-xs">
+                            {getTrendIcon(project.trend)}
+                            <span>{project.trend.charAt(0).toUpperCase() + project.trend.slice(1)}</span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Time allocation is {project.trend}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </CardHeader>
+                  <CardContent className="p-3 pt-0">
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded">
+                        <div className="text-xs text-muted-foreground">Weekly Average</div>
+                        <div className="text-sm font-medium">{project.weeklyAverage.toFixed(1)} hrs/week</div>
+                      </div>
+                      <div className="bg-slate-50 dark:bg-slate-900 p-2 rounded">
+                        <div className="text-xs text-muted-foreground">Due Date</div>
+                        <div className="text-sm font-medium">{new Date(project.dueDate).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span>Completion</span>
+                        <span>{project.completion}%</span>
+                      </div>
+                      <Progress value={project.completion} className="h-1.5" />
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-0 border-t">
+                    <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                      View Project Details
+                      <ChevronRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Recommendations */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-green-600" />
+              Actionable Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-amber-50 dark:bg-amber-950 p-1.5 rounded-full">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Potential deadline risk for Mobile App Development</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Current progress is behind schedule. Consider allocating additional resources.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      Adjust Timeline
+                    </Button>
+                    <Button size="sm" className="h-7 text-xs">
+                      Add Resources
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="bg-green-50 dark:bg-green-950 p-1.5 rounded-full">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Brand Strategy project is ahead of schedule</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Consider reallocating resources to other projects that need attention.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      View Resource Allocation
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const renderResourcePredictions = (projectData: any[]) => {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium">Resource Allocation Forecast</h3>
+            <Badge variant="outline" className="text-xs font-normal">
+              <Sparkles className="h-3 w-3 mr-1 text-amber-500" />
+              AI Generated
+            </Badge>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Users className="h-4 w-4 text-indigo-600" />
+                  Team Capacity
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-sm font-medium">Current Utilization</div>
+                  <div className="text-sm font-medium">78%</div>
+                </div>
+                <Progress value={78} className="h-2 mb-4" />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span>Design Team</span>
+                    <span className="font-medium">85%</span>
+                  </div>
+                  <Progress value={85} className="h-1.5 bg-slate-200 dark:bg-slate-800" />
+
+                  <div className="flex justify-between text-xs">
+                    <span>Development Team</span>
+                    <span className="font-medium">92%</span>
+                  </div>
+                  <Progress value={92} className="h-1.5 bg-slate-200 dark:bg-slate-800" />
+
+                  <div className="flex justify-between text-xs">
+                    <span>Marketing Team</span>
+                    <span className="font-medium">65%</span>
+                  </div>
+                  <Progress value={65} className="h-1.5 bg-slate-200 dark:bg-slate-800" />
+                </div>
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  View Team Details
+                  <ChevronRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-indigo-600" />
+                  Resource Timeline
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Current Week</div>
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                      High Demand
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Next Week</div>
+                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                      Over Capacity
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Week of Jun 10</div>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Available
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Week of Jun 17</div>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      Available
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  View Full Timeline
+                  <ChevronRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <ScrollArea className="h-[200px] pr-4">
+            <div className="space-y-3">
+              {projectData.map((project: any, index: number) => (
+                <div key={index} className="bg-muted/50 rounded-lg p-3">
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="font-medium text-sm flex items-center gap-1.5">
+                      {getStatusIcon(project.status)}
+                      {project.name}
+                    </div>
+                    <div className="flex items-center gap-1 text-xs">
+                      <span>{project.weeklyAverage.toFixed(1)} hrs/week needed</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                    <span>Client: {project.client}</span>
+                    <span>
+                      Resource intensity:{" "}
+                      {project.trend === "increasing" ? "High" : project.trend === "decreasing" ? "Low" : "Medium"}
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted h-2 rounded-full">
+                    <div
+                      className="bg-indigo-500 h-2 rounded-full"
+                      style={{
+                        width: `${Math.min(100, (project.weeklyAverage / 40) * 100)}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Recommendations */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-indigo-600" />
+              Resource Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-red-50 dark:bg-red-950 p-1.5 rounded-full">
+                  <XCircle className="h-4 w-4 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Development team is over capacity next week</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Consider bringing in contractors or adjusting project timelines.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      Adjust Timeline
+                    </Button>
+                    <Button size="sm" className="h-7 text-xs">
+                      Add Resources
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="bg-green-50 dark:bg-green-950 p-1.5 rounded-full">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Marketing team has available capacity</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Consider starting the Content Creation project earlier than planned.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      View Marketing Team
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const renderRevenuePredictions = (projectData: any[]) => {
+    // Calculate total projected revenue
+    const hourlyRate = 150
+    const totalRevenue = projectData.reduce((sum, project) => sum + project.totalHours * hourlyRate, 0)
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium">Revenue Forecast</h3>
+            <Badge variant="outline" className="text-xs font-normal">
+              <Sparkles className="h-3 w-3 mr-1 text-amber-500" />
+              AI Generated
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-emerald-600" />
+                  Revenue Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="text-2xl font-bold mb-1">${totalRevenue.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mb-4">Projected revenue for current projects</div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span>Billable Hours</span>
+                    <span className="font-medium">82%</span>
+                  </div>
+                  <Progress value={82} className="h-1.5 bg-slate-200 dark:bg-slate-800" />
+
+                  <div className="flex justify-between text-xs">
+                    <span>Target Revenue</span>
+                    <span className="font-medium">75%</span>
+                  </div>
+                  <Progress value={75} className="h-1.5 bg-slate-200 dark:bg-slate-800" />
+                </div>
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  View Revenue Details
+                  <ChevronRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                  Revenue Trends
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">This Month</div>
+                    <div className="flex items-center gap-1 text-xs text-green-600">
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span>+12.5%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Last Month</div>
+                    <div className="flex items-center gap-1 text-xs text-green-600">
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span>+8.3%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Q2 Projection</div>
+                    <div className="flex items-center gap-1 text-xs text-green-600">
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span>+15.2%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">Year-to-Date</div>
+                    <div className="flex items-center gap-1 text-xs text-green-600">
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span>+10.7%</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  View Trend Analysis
+                  <ChevronRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+
+          <ScrollArea className="h-[200px] pr-4">
+            <div className="space-y-3">
+              {projectData.map((project: any, index: number) => {
+                // Simulate revenue based on hours
+                const projectedRevenue = project.totalHours * hourlyRate
+
+                return (
+                  <div key={index} className="bg-muted/50 rounded-lg p-3">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="font-medium text-sm">{project.name}</div>
+                      <div className="flex items-center gap-1 text-xs">
+                        {getTrendIcon(project.trend)}
+                        <span>${projectedRevenue.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                      <span>Client: {project.client}</span>
+                      <span>{project.totalHours.toFixed(1)} billable hours</span>
+                    </div>
+                    <div className="w-full bg-muted h-2 rounded-full">
+                      <div
+                        className="bg-emerald-500 h-2 rounded-full"
+                        style={{
+                          width: `${Math.min(100, (projectedRevenue / Math.max(...projectData.map((p: any) => p.totalHours * hourlyRate))) * 100)}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Recommendations */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-emerald-600" />
+              Revenue Optimization
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-amber-50 dark:bg-amber-950 p-1.5 rounded-full">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Non-billable time is reducing revenue efficiency</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Consider implementing automated timesheet reminders to improve billable ratio.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      View Non-billable Time
+                    </Button>
+                    <Button size="sm" className="h-7 text-xs">
+                      Set Up Reminders
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="bg-green-50 dark:bg-green-950 p-1.5 rounded-full">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Website Redesign project has high revenue potential</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Consider allocating more resources to maximize billable hours on this project.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      View Project Details
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const renderTrendPredictions = (projectData: any[]) => {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium">Industry Trends</h3>
+            <Badge variant="outline" className="text-xs font-normal">
+              <Sparkles className="h-3 w-3 mr-1 text-amber-500" />
+              AI Generated
+            </Badge>
+          </div>
+
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <p className="text-sm text-muted-foreground">
+                Based on your timesheet data and industry benchmarks, here are the emerging trends that may impact your
+                agency:
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="space-y-3">
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-purple-600" />
+                  Digital Transformation
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">
+                  Your time entries show a 15% increase in digital transformation projects over the last quarter,
+                  aligning with industry-wide growth in this sector.
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-xs">Industry Adoption</div>
+                  <div className="text-xs font-medium">78%</div>
+                </div>
+                <Progress value={78} className="h-1.5 mt-1" />
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-xs">Your Agency Adoption</div>
+                  <div className="text-xs font-medium">65%</div>
+                </div>
+                <Progress value={65} className="h-1.5 mt-1" />
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  Explore Opportunities
+                  <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-purple-600" />
+                  Agile Project Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">
+                  Your shorter, more frequent time entries suggest adoption of agile methodologies, which is becoming
+                  standard practice across the industry.
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-xs">Industry Adoption</div>
+                  <div className="text-xs font-medium">85%</div>
+                </div>
+                <Progress value={85} className="h-1.5 mt-1" />
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-xs">Your Agency Adoption</div>
+                  <div className="text-xs font-medium">72%</div>
+                </div>
+                <Progress value={72} className="h-1.5 mt-1" />
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  Explore Opportunities
+                  <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 pb-2 bg-slate-50 dark:bg-slate-900">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-purple-600" />
+                  Data Analytics Focus
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">
+                  Time spent on analytics-related tasks has grown by 22%, reflecting the industry trend toward
+                  data-driven decision making.
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-xs">Industry Adoption</div>
+                  <div className="text-xs font-medium">68%</div>
+                </div>
+                <Progress value={68} className="h-1.5 mt-1" />
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="text-xs">Your Agency Adoption</div>
+                  <div className="text-xs font-medium">45%</div>
+                </div>
+                <Progress value={45} className="h-1.5 mt-1" />
+              </CardContent>
+              <CardFooter className="p-0 border-t">
+                <Button variant="ghost" size="sm" className="w-full rounded-none h-8 text-xs">
+                  Explore Opportunities
+                  <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+
+        {/* Recommendations */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-purple-600" />
+              Strategic Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="bg-purple-50 dark:bg-purple-950 p-1.5 rounded-full">
+                  <Sparkles className="h-4 w-4 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Invest in data analytics capabilities</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Your agency is behind industry trends in data analytics adoption. Consider upskilling your team.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      View Training Options
+                    </Button>
+                    <Button size="sm" className="h-7 text-xs">
+                      Explore Tools
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="bg-purple-50 dark:bg-purple-950 p-1.5 rounded-full">
+                  <Sparkles className="h-4 w-4 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Leverage digital transformation expertise</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Your agency has strong experience in this growing area. Consider marketing this as a key service.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <Button variant="outline" size="sm" className="h-7 text-xs">
+                      View Marketing Ideas
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>AI Predictions</CardTitle>
+            <CardDescription>AI-powered forecasts for your upcoming work</CardDescription>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
+        {error && (
+          <Alert variant="default" className="mt-2 bg-amber-50 text-amber-800 border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertTitle>Note</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+      </CardHeader>
+      <CardContent className="p-0">
+        <Tabs defaultValue={activeTab} onValueChange={handleTabChange} className="w-full">
+          <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
+            <TabsTrigger
+              value="timeline"
+              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent"
+            >
+              Project Timelines
+            </TabsTrigger>
+            <TabsTrigger
+              value="resources"
+              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent"
+            >
+              Resource Allocation
+            </TabsTrigger>
+            <TabsTrigger
+              value="revenue"
+              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent"
+            >
+              Revenue Forecasting
+            </TabsTrigger>
+            <TabsTrigger
+              value="trends"
+              className="rounded-none border-b-2 border-transparent px-4 py-2 data-[state=active]:border-primary data-[state=active]:bg-transparent"
+            >
+              Industry Trends
+            </TabsTrigger>
+          </TabsList>
+          <div className="p-4">{renderContent()}</div>
+        </Tabs>
+      </CardContent>
+    </Card>
+  )
 }

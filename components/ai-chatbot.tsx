@@ -1,28 +1,43 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
-import { Bot, Send, Mic, X, Maximize2, Minimize2, ChevronRight, Clock, Calendar, Briefcase } from "lucide-react"
-
+import {
+  Bot,
+  Send,
+  Mic,
+  X,
+  Maximize2,
+  Minimize2,
+  ChevronRight,
+  Clock,
+  Calendar,
+  Briefcase,
+  Loader2,
+  Check,
+  AlertCircle,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
+import {
+  createUserMessage,
+  createAssistantMessage,
+  sendChatMessage,
+  type Message,
+  type SuggestionType,
+} from "@/lib/chat-utils"
+import { useRouter } from "next/navigation"
 
-type Message = {
-  id: string
-  content: string
-  role: "user" | "assistant"
-  timestamp: Date
-}
-
-type SuggestionType = {
-  id: string
-  text: string
-  icon?: React.ReactNode
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any
+  }
 }
 
 export function AiChatbot() {
@@ -30,15 +45,14 @@ export function AiChatbot() {
   const [isMinimized, setIsMinimized] = useState(false)
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hi there! I'm your AdTrack assistant. How can I help you with your timesheets today?",
-      role: "assistant",
-      timestamp: new Date(),
-    },
+    createAssistantMessage("Hi there! I'm your AdTrack assistant. How can I help you with your timesheets today?"),
   ])
   const [isLoading, setIsLoading] = useState(false)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isListening, setIsListening] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   const suggestions: SuggestionType[] = [
     {
@@ -64,56 +78,38 @@ export function AiChatbot() {
     }
   }, [messages])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
-      // Add user message
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: input,
-        role: "user",
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, userMessage])
-      setInput("")
-      setIsLoading(true)
+      try {
+        // Add user message
+        const userMessage = createUserMessage(input)
+        setMessages((prev) => [...prev, userMessage])
+        setInput("")
+        setIsLoading(true)
+        setError(null)
 
-      // Simulate AI response
-      setTimeout(() => {
-        let response = ""
+        // Send to API
+        const result = await sendChatMessage(input, conversationId || undefined)
 
-        // Simple pattern matching for demo purposes
-        const lowerInput = input.toLowerCase()
-
-        if (lowerInput.includes("log time") || lowerInput.includes("add hours") || lowerInput.includes("timesheet")) {
-          response =
-            "I can help you log your time! What project did you work on, and how many hours would you like to log?"
-        } else if (lowerInput.includes("summary") || lowerInput.includes("report") || lowerInput.includes("overview")) {
-          response =
-            "This week you've logged 32 hours across 4 projects. Your most active project is 'Website Redesign - Acme Corp' with 12 hours."
-        } else if (lowerInput.includes("project") || lowerInput.includes("assigned")) {
-          response =
-            "You're currently assigned to 3 active projects: 'Website Redesign - Acme Corp', 'Social Media Campaign - TechStart', and 'Brand Identity - FreshFoods'."
-        } else if (lowerInput.includes("deadline") || lowerInput.includes("due")) {
-          response =
-            "Your next deadline is for 'Website Redesign - Acme Corp' on October 15, 2024 (5 days from now). The project is currently 75% complete."
-        } else if (lowerInput.includes("help") || lowerInput.includes("how to")) {
-          response =
-            "I can help you log time, view project information, check deadlines, and generate reports. Just let me know what you need!"
-        } else {
-          response =
-            "I'm not sure I understand. Would you like help with logging time, checking project status, or viewing reports?"
+        // Set conversation ID if not already set
+        if (!conversationId && result.conversationId) {
+          setConversationId(result.conversationId)
         }
 
-        const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: response,
-          role: "assistant",
-          timestamp: new Date(),
-        }
-
+        // Add assistant response
+        const assistantMessage = createAssistantMessage(result.response, result.action)
         setMessages((prev) => [...prev, assistantMessage])
+
+        // If there was a successful timesheet entry, show a notification or update UI
+        if (result.action?.success && result.action?.data) {
+          // Could trigger a notification or update UI here
+        }
+      } catch (err) {
+        setError("Failed to get a response. Please try again.")
+        console.error("Chat error:", err)
+      } finally {
         setIsLoading(false)
-      }, 1000)
+      }
     }
   }
 
@@ -138,6 +134,102 @@ export function AiChatbot() {
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized)
+  }
+
+  const handleVoiceInput = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      setError("Voice input is not supported in your browser")
+      return
+    }
+
+    try {
+      setIsListening(true)
+
+      // @ts-ignore - WebkitSpeechRecognition is not in the types
+      const recognition = new window.webkitSpeechRecognition()
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = "en-US"
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript
+        setInput(transcript)
+        setIsListening(false)
+      }
+
+      recognition.onerror = () => {
+        setIsListening(false)
+        setError("Error recognizing speech. Please try again.")
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+      }
+
+      recognition.start()
+    } catch (err) {
+      setIsListening(false)
+      setError("Error starting voice recognition")
+      console.error("Voice recognition error:", err)
+    }
+  }
+
+  const navigateToTimesheet = (timesheetId: string) => {
+    router.push(`/timesheet/${timesheetId}`)
+    setIsOpen(false)
+  }
+
+  const renderActionResult = (message: Message) => {
+    if (!message.action) return null
+
+    return (
+      <div className="mt-2">
+        <Alert
+          className={cn(
+            "py-2 px-3 text-xs",
+            message.action.success
+              ? "bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+              : "bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300",
+          )}
+        >
+          <div className="flex items-center gap-2">
+            {message.action.success ? (
+              <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
+            )}
+            <AlertDescription>{message.action.message}</AlertDescription>
+          </div>
+
+          {message.action.success && message.action.data && (
+            <div className="mt-2 flex flex-col gap-1">
+              <div className="flex justify-between text-xs">
+                <span>Project:</span>
+                <Badge variant="outline" className="font-normal">
+                  {message.action.data.project_id.substring(0, 8)}...
+                </Badge>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>Hours:</span>
+                <span>{message.action.data.hours}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span>Date:</span>
+                <span>{message.action.data.date}</span>
+              </div>
+              <Button
+                variant="link"
+                size="sm"
+                className="mt-1 h-auto p-0 text-xs"
+                onClick={() => navigateToTimesheet(message.action.data.id)}
+              >
+                View timesheet
+              </Button>
+            </div>
+          )}
+        </Alert>
+      </div>
+    )
   }
 
   return (
@@ -187,16 +279,19 @@ export function AiChatbot() {
                 <ScrollArea className="h-[calc(600px-8rem)] max-h-[calc(100vh-12rem)]">
                   <div className="flex flex-col gap-3 p-4">
                     {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={cn(
-                          "flex w-max max-w-[80%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
-                          message.role === "user" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
-                        )}
-                      >
-                        {message.content}
+                      <div key={message.id} className="flex flex-col">
+                        <div
+                          className={cn(
+                            "flex w-max max-w-[80%] flex-col gap-2 rounded-lg px-3 py-2 text-sm",
+                            message.role === "user" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
+                          )}
+                        >
+                          {message.content}
+                        </div>
+                        {message.role === "assistant" && renderActionResult(message)}
                       </div>
                     ))}
+
                     {isLoading && (
                       <div className="flex w-max max-w-[80%] flex-col gap-2 rounded-lg px-3 py-2 text-sm bg-muted">
                         <div className="flex gap-1">
@@ -206,6 +301,14 @@ export function AiChatbot() {
                         </div>
                       </div>
                     )}
+
+                    {error && (
+                      <Alert variant="destructive" className="py-2 px-3 text-xs">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+
                     <div ref={messagesEndRef} />
                   </div>
                 </ScrollArea>
@@ -235,19 +338,31 @@ export function AiChatbot() {
 
               <CardFooter className="p-3 pt-0">
                 <div className="flex w-full items-center gap-2">
-                  <Button variant="outline" size="icon" className="shrink-0">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={cn("shrink-0", isListening && "bg-red-100 text-red-500 border-red-200")}
+                    onClick={handleVoiceInput}
+                    disabled={isLoading}
+                  >
                     <Mic className="h-4 w-4" />
                     <span className="sr-only">Use voice input</span>
                   </Button>
                   <Input
-                    placeholder="Ask me anything about timesheets..."
+                    placeholder={isListening ? "Listening..." : "Ask me anything about timesheets..."}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     className="flex-1"
+                    disabled={isLoading || isListening}
                   />
-                  <Button size="icon" className="shrink-0" onClick={handleSend} disabled={!input.trim()}>
-                    <Send className="h-4 w-4" />
+                  <Button
+                    size="icon"
+                    className="shrink-0"
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading || isListening}
+                  >
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     <span className="sr-only">Send message</span>
                   </Button>
                 </div>

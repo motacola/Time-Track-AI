@@ -1,29 +1,25 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../types/supabase"
-import { logger } from "@/lib/logger"
+import { cookies } from "next/headers"
 
-export function createClient(cookieStore = cookies()) {
-  try {
-    return createServerComponentClient<Database>({ cookies: () => cookieStore })
-  } catch (error) {
-    logger.error("Error creating Supabase client:", error instanceof Error ? error : new Error(String(error)))
-    // Return a minimal client that won't crash but will return errors
-    // This allows the application to gracefully handle the error
-    return {
-      auth: {
-        getSession: async () => ({ data: { session: null }, error }),
-        signOut: async () => ({ error }),
+// Create a Supabase client for server-side operations
+export const createClient = (cookieStore = cookies()) => {
+  const supabaseUrl = process.env.SUPABASE_URL || "https://example.supabase.co"
+  const supabaseKey = process.env.SUPABASE_ANON_KEY || "your-anon-key"
+
+  return createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
       },
-      from: () => ({
-        select: () => ({
-          eq: () => ({
-            order: () => ({
-              limit: () => ({ data: null, error }),
-            }),
-          }),
-        }),
-      }),
-    } as any
-  }
+    },
+  })
+}
+
+// For backward compatibility
+export const createServerClient = () => {
+  const supabaseUrl = process.env.SUPABASE_URL || "https://example.supabase.co"
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "your-service-role-key"
+
+  return createSupabaseClient<Database>(supabaseUrl, supabaseKey)
 }

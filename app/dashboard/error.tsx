@@ -15,6 +15,22 @@ export default function DashboardError({
 }) {
   const router = useRouter()
 
+  // Handle redirect errors more gracefully
+  useEffect(() => {
+    // Check if the error is a redirect error
+    if (error && error.message && error.message.includes("NEXT_REDIRECT")) {
+      // Extract the redirect URL if possible
+      const match = error.message.match(/NEXT_REDIRECT;(.+)/)
+      if (match && match[1]) {
+        // Navigate to the redirect URL
+        router.push(match[1])
+      } else {
+        // Default to login if we can't extract the URL
+        router.push("/login")
+      }
+    }
+  }, [error, router])
+
   useEffect(() => {
     // Log the error
     console.error("Dashboard error:", error)
@@ -24,6 +40,25 @@ export default function DashboardError({
   // This avoids using the Supabase client directly in the error boundary
   const handleLogout = () => {
     router.push("/login")
+  }
+
+  // Update the error display to handle redirect errors
+  // Add this condition in the return statement, before the main error display:
+  if (error && error.message && error.message.includes("NEXT_REDIRECT")) {
+    return (
+      <div className="flex min-h-[80vh] flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900/50 dark:bg-yellow-900/10">
+          <h2 className="mb-2 text-xl font-semibold text-yellow-800 dark:text-yellow-400">Redirecting...</h2>
+          <p className="mb-4 text-yellow-700 dark:text-yellow-300">
+            You're being redirected to the login page. If you're not redirected automatically, please click the button
+            below.
+          </p>
+          <Button onClick={handleLogout} className="flex items-center gap-2">
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
