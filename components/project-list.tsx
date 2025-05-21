@@ -6,30 +6,76 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Clock } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { LoadingFallback } from "@/components/ui/loading-fallback"
 import { EmptyState } from "@/components/ui/empty-state"
 import { DatabaseError } from "@/components/ui/database-error"
 import { logger } from "@/lib/logger"
+
+// Mock projects data
+const mockProjects = [
+  {
+    id: "1",
+    name: "Website Redesign",
+    status: "In Progress",
+    client: "Acme Corp",
+    job_number: "ACM-2023-01",
+    deadline: "2023-12-31",
+    created_at: "2023-01-15",
+  },
+  {
+    id: "2",
+    name: "Mobile App Development",
+    status: "Planning",
+    client: "TechStart Inc",
+    job_number: "TSI-2023-05",
+    deadline: "2023-11-15",
+    created_at: "2023-02-20",
+  },
+  {
+    id: "3",
+    name: "Brand Identity",
+    status: "Completed",
+    client: "Green Leaf",
+    job_number: "GL-2023-03",
+    deadline: "2023-08-01",
+    created_at: "2023-03-10",
+  },
+  {
+    id: "4",
+    name: "Marketing Campaign",
+    status: "In Progress",
+    client: "SkyHigh Airlines",
+    job_number: "SHA-2023-02",
+    deadline: "2023-10-15",
+    created_at: "2023-04-05",
+  },
+  {
+    id: "5",
+    name: "E-commerce Platform",
+    status: "Planning",
+    client: "Fashion Forward",
+    job_number: "FF-2023-07",
+    deadline: "2024-01-31",
+    created_at: "2023-05-12",
+  },
+]
 
 export default function ProjectList() {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
+    // Simulate API call with a delay
     const fetchProjects = async () => {
       try {
         setLoading(true)
-        const { data, error } = await supabase.from("projects").select("*").order("created_at", { ascending: false })
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 800))
 
-        if (error) {
-          throw error
-        }
-
-        setProjects(data || [])
+        // Use mock data instead of Supabase
+        setProjects(mockProjects)
       } catch (err) {
         logger.error("Error fetching projects", err instanceof Error ? err : new Error(String(err)))
         setError(err instanceof Error ? err : new Error(String(err)))
