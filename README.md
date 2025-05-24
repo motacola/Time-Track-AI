@@ -10,6 +10,14 @@
 This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
 Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
 
+## AI-Powered Timesheet Entry
+
+This application uses AI (via Google's Gemini model) to process natural language input for timesheet entries, suggesting structured data like project, hours, date, and task type.
+
+For detailed information on setting up the AI integration, including API key configuration, model details, and database considerations for the `task_type` field, please see:
+
+**[AI Integration Setup Guide](./docs/AI_SETUP.md)**
+
 ## Deployment
 
 Your project is live at:
