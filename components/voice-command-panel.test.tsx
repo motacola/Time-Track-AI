@@ -69,7 +69,7 @@ describe('VoiceCommandPanel', () => {
   });
 
   describe('Successful Voice Recognition', () => {
-    it('starts listening, processes interim and final results, and calls onCommand', async () => {
+    it('calls onCommand with trimmed, non-empty transcript for final result', async () => {
       render(<VoiceCommandPanel onClose={mockOnClose} onCommand={mockOnCommand} />);
       const micButton = screen.getByRole('button', { name: /start voice command/i });
       fireEvent.click(micButton);
@@ -134,15 +134,56 @@ describe('VoiceCommandPanel', () => {
       });
 
       expect(screen.getByText(finalTranscript)).toBeInTheDocument();
-      expect(mockOnCommand).toHaveBeenCalledTimes(1); // onCommand is called with final transcript
-      expect(mockOnCommand).toHaveBeenCalledWith(); 
+      expect(mockOnCommand).toHaveBeenCalledTimes(1);
+      expect(mockOnCommand).toHaveBeenCalledWith(finalTranscript);
 
       // Simulate onend
       act(() => {
         mockRecognitionInstance.onend();
       });
-      expect(screen.getByText('Click to try again')).toBeInTheDocument(); // Or "Click to speak a command" if transcript was cleared
+      expect(screen.getByText('Click to try again')).toBeInTheDocument(); 
       expect(screen.getByRole('button', { name: /start voice command/i })).toBeInTheDocument();
+    });
+
+    it('calls onCommand with trimmed transcript when final result has leading/trailing spaces', () => {
+      render(<VoiceCommandPanel onClose={mockOnClose} onCommand={mockOnCommand} />);
+      fireEvent.click(screen.getByRole('button', { name: /start voice command/i }));
+      act(() => mockRecognitionInstance.onstart()); // Trigger listening state
+
+      const transcriptWithSpaces = "  leading and trailing spaces  ";
+      const expectedTranscript = "leading and trailing spaces";
+      act(() => {
+        mockRecognitionInstance.onresult({
+          results: [ { isFinal: true, 0: { transcript: transcriptWithSpaces, confidence: 0.9 }, length: 1 } ],
+        } as unknown as SpeechRecognitionEvent);
+      });
+      expect(mockOnCommand).toHaveBeenCalledWith(expectedTranscript);
+    });
+
+    it('does NOT call onCommand if the final transcript is empty', () => {
+      render(<VoiceCommandPanel onClose={mockOnClose} onCommand={mockOnCommand} />);
+      fireEvent.click(screen.getByRole('button', { name: /start voice command/i }));
+      act(() => mockRecognitionInstance.onstart());
+
+      act(() => {
+        mockRecognitionInstance.onresult({
+          results: [ { isFinal: true, 0: { transcript: "", confidence: 0.9 }, length: 1 } ],
+        } as unknown as SpeechRecognitionEvent);
+      });
+      expect(mockOnCommand).not.toHaveBeenCalled();
+    });
+
+    it('does NOT call onCommand if the final transcript is whitespace-only', () => {
+      render(<VoiceCommandPanel onClose={mockOnClose} onCommand={mockOnCommand} />);
+      fireEvent.click(screen.getByRole('button', { name: /start voice command/i }));
+      act(() => mockRecognitionInstance.onstart());
+      
+      act(() => {
+        mockRecognitionInstance.onresult({
+          results: [ { isFinal: true, 0: { transcript: "   ", confidence: 0.9 }, length: 1 } ],
+        } as unknown as SpeechRecognitionEvent);
+      });
+      expect(mockOnCommand).not.toHaveBeenCalled();
     });
   });
 

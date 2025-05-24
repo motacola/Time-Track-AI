@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Mic, X, Volume2, Clock, Briefcase, BarChart, Calendar, ChevronRight } from "lucide-react"
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 
 interface VoiceCommandPanelProps {
   onClose: () => void
-  onCommand: () => void
+  onCommand: (transcript: string) => void
 }
 
 export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps) {
@@ -18,8 +18,7 @@ export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps
   const [isUnsupportedBrowser, setIsUnsupportedBrowser] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Stores the SpeechRecognition instance
-  let recognition: SpeechRecognition | null = null;
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const handleStartListening = () => {
     setErrorMessage(null) // Clear previous errors
@@ -36,15 +35,15 @@ export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps
       return
     }
     setIsListening(true)
-    recognition = new SpeechRecognitionAPI()
-    recognition.continuous = false // Process single utterances
-    recognition.interimResults = true // Show interim results
+    recognitionRef.current = new SpeechRecognitionAPI()
+    recognitionRef.current.continuous = false // Process single utterances
+    recognitionRef.current.interimResults = true // Show interim results
 
-    recognition.onstart = () => {
+    recognitionRef.current.onstart = () => {
       setIsListening(true)
     }
 
-    recognition.onresult = (event) => {
+    recognitionRef.current.onresult = (event) => {
       let interimTranscript = ""
       let finalTranscript = ""
 
@@ -56,13 +55,17 @@ export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps
         }
       }
       setTranscript(finalTranscript || interimTranscript)
-      if (finalTranscript) {
-        // Consider calling onCommand only if the command is not an error message
-        if (!errorMessage) onCommand() 
+      
+      // Process final transcript
+      if (finalTranscript) { // Check if there is any final transcript text
+        const trimmedFinalTranscript = finalTranscript.trim()
+        if (trimmedFinalTranscript && !errorMessage) { // Check if not empty after trimming and no error
+          onCommand(trimmedFinalTranscript)
+        }
       }
     }
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
       console.error("Speech recognition error:", event.error)
       let errorMsg = `Speech recognition error: ${event.error}`
       switch (event.error) {
@@ -82,17 +85,17 @@ export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps
       setIsListening(false)
     }
 
-    recognition.onend = () => {
+    recognitionRef.current.onend = () => {
       setIsListening(false)
       // onCommand was called with final transcript in onresult
     }
 
-    recognition.start()
+    recognitionRef.current.start()
   }
 
   const handleStopListening = () => {
-    if (recognition) {
-      recognition.stop()
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
     }
     setIsListening(false)
   }
