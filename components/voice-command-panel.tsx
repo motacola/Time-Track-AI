@@ -15,20 +15,86 @@ export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState("")
   const [showExamples, setShowExamples] = useState(true)
+  const [isUnsupportedBrowser, setIsUnsupportedBrowser] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Stores the SpeechRecognition instance
+  let recognition: SpeechRecognition | null = null;
 
   const handleStartListening = () => {
-    setIsListening(true)
+    setErrorMessage(null) // Clear previous errors
     setTranscript("")
 
-    // Simulate voice recognition
-    setTimeout(() => {
-      setTranscript("Log 2 hours on project Acme redesign")
 
-      setTimeout(() => {
-        setIsListening(false)
-        onCommand()
-      }, 1000)
-    }, 2000)
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognitionAPI) {
+      console.error("Speech Recognition API not supported in this browser.")
+      setTranscript("") // Clear any previous transcript
+      setErrorMessage("Voice recognition is not supported in your browser.")
+      setIsUnsupportedBrowser(true)
+      setIsListening(false)
+      return
+    }
+    setIsListening(true)
+    recognition = new SpeechRecognitionAPI()
+    recognition.continuous = false // Process single utterances
+    recognition.interimResults = true // Show interim results
+
+    recognition.onstart = () => {
+      setIsListening(true)
+    }
+
+    recognition.onresult = (event) => {
+      let interimTranscript = ""
+      let finalTranscript = ""
+
+      for (let i = 0; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript
+        } else {
+          interimTranscript += event.results[i][0].transcript
+        }
+      }
+      setTranscript(finalTranscript || interimTranscript)
+      if (finalTranscript) {
+        // Consider calling onCommand only if the command is not an error message
+        if (!errorMessage) onCommand() 
+      }
+    }
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error("Speech recognition error:", event.error)
+      let errorMsg = `Speech recognition error: ${event.error}`
+      switch (event.error) {
+        case 'no-speech':
+          errorMsg = "No speech detected. Please try again."
+          break
+        case 'audio-capture':
+          errorMsg = "Audio capture error. Please check microphone permissions."
+          break
+        case 'not-allowed':
+          errorMsg = "Microphone access denied. Please allow microphone access in your browser settings."
+          break
+        // no default needed as errorMsg is already set
+      }
+      setErrorMessage(errorMsg)
+      setTranscript("") // Clear any partial transcript
+      setIsListening(false)
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+      // onCommand was called with final transcript in onresult
+    }
+
+    recognition.start()
+  }
+
+  const handleStopListening = () => {
+    if (recognition) {
+      recognition.stop()
+    }
+    setIsListening(false)
   }
 
   const exampleCommands = [
@@ -66,34 +132,46 @@ export function VoiceCommandPanel({ onClose, onCommand }: VoiceCommandPanelProps
         </Button>
       </CardHeader>
       <CardContent className="p-4 space-y-4">
-        <div className="flex flex-col items-center justify-center gap-3 py-2">
-          <Button
-            variant={isListening ? "destructive" : "default"}
-            size="lg"
-            className={`rounded-full h-16 w-16 ${isListening ? "animate-pulse" : ""}`}
-            onClick={handleStartListening}
-            disabled={isListening}
-          >
-            <Mic className="h-6 w-6" />
-            <span className="sr-only">{isListening ? "Stop listening" : "Start voice command"}</span>
-          </Button>
-          <div className="text-center">
-            {isListening ? (
-              <div className="text-sm font-medium">Listening...</div>
-            ) : (
-              <div className="text-sm text-muted-foreground">Click to speak a command</div>
-            )}
+        {isUnsupportedBrowser ? (
+          <div className="text-center text-red-500 dark:text-red-400 p-4 bg-red-50 dark:bg-red-950 rounded-md">
+            {errorMessage || "Voice recognition is not supported in your browser."}
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex flex-col items-center justify-center gap-3 py-2">
+              <Button
+                variant={isListening ? "destructive" : "default"}
+                size="lg"
+                className={`rounded-full h-16 w-16 ${isListening ? "animate-pulse" : ""}`}
+                onClick={isListening ? handleStopListening : handleStartListening}
+                disabled={isUnsupportedBrowser}
+              >
+                <Mic className="h-6 w-6" />
+                <span className="sr-only">{isListening ? "Stop listening" : "Start voice command"}</span>
+              </Button>
+              <div className="text-center">
+                {isListening ? (
+                  <div className="text-sm font-medium">Listening...</div>
+                ) : errorMessage ? (
+                  <div className="text-sm text-red-500 dark:text-red-400">{errorMessage}</div>
+                ) : transcript ? (
+                  <div className="text-sm text-muted-foreground">Click to try again</div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">Click to speak a command</div>
+                )}
+              </div>
+            </div>
 
-        {transcript && (
-          <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-md">
-            <p className="text-sm font-medium mb-1">I heard:</p>
-            <p className="text-sm">{transcript}</p>
-          </div>
+            {transcript && !errorMessage && (
+              <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-md">
+                <p className="text-sm font-medium mb-1">Transcript:</p>
+                <p className="text-sm">{transcript}</p>
+              </div>
+            )}
+          </>
         )}
 
-        {showExamples && (
+        {showExamples && !isUnsupportedBrowser && (
           <div>
             <p className="text-sm font-medium mb-2">Example commands:</p>
             <div className="space-y-2">
