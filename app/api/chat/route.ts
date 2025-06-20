@@ -224,7 +224,7 @@ function createSystemPrompt(contextData: any) {
     .join("\n")
 
   return `
-You are AdTrack Assistant, an AI helper for a timesheet management system. Today is ${currentDate}.
+You are TimeTrack AI Assistant, an AI helper for a timesheet management system. Today is ${currentDate}.
 
 USER CONTEXT:
 Recent timesheet entries:
