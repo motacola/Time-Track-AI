@@ -48,7 +48,7 @@ export function NavbarNoAuth() {
                     <Link href="/blog">Blog</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/help">Help Center</Link>
+                    <Link href="/help-centre">Help Center</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/guides">Guides</Link>
@@ -143,7 +143,7 @@ export function NavbarNoAuth() {
                   Blog
                 </Link>
                 <Link
-                  href="/help"
+                  href="/help-centre"
                   className="block text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                 >
                   Help Center
