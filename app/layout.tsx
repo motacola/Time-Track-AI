@@ -1,6 +1,7 @@
 import type React from "react"
 import { NavbarWrapper } from "./components/navbar-wrapper"
 import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "sonner" // Corrected import path
 import "./globals.css"
 
 export const metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <NavbarWrapper />
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -12,10 +12,28 @@ import { LoadingFallback } from "@/components/ui/loading-fallback"
 import { EmptyState } from "@/components/ui/empty-state"
 import { DatabaseError } from "@/components/ui/database-error"
 import { logger } from "@/lib/logger"
+import type { Database } from "@/lib/types/supabase" // Import Database type
+
+// Define type for a timesheet entry row from Supabase
+type TimesheetEntryRow = Database["public"]["Tables"]["timesheet_entries"]["Row"]
+
+// Define a more specific type for the enriched timesheet entry including project name
+interface ProjectNameOnly {
+  name: string
+}
+
+// EnrichedTimesheetEntry will have all fields from TimesheetEntryRow,
+// but the 'projects' field (originally project_id) will be shaped by the join.
+// Supabase client correctly types this if the select query is specific.
+// However, for clarity with `select("*, projects(name)")`, we define what `projects` becomes.
+interface EnrichedTimesheetEntry extends TimesheetEntryRow {
+  projects: ProjectNameOnly | null
+}
+
 
 export function TimesheetList() {
-  const [timesheets, setTimesheets] = useState<any[]>([])
-  const [filteredTimesheets, setFilteredTimesheets] = useState<any[]>([])
+  const [timesheets, setTimesheets] = useState<EnrichedTimesheetEntry[]>([])
+  const [filteredTimesheets, setFilteredTimesheets] = useState<EnrichedTimesheetEntry[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -58,8 +76,13 @@ export function TimesheetList() {
           throw error
         }
 
-        setTimesheets(data || [])
-        setFilteredTimesheets(data || [])
+        // Cast the data to EnrichedTimesheetEntry[]
+        // Supabase data can be null, or the query could return an array.
+        // The actual structure of `data` items from `select("*, projects(name)")`
+        // should match EnrichedTimesheetEntry.
+        const typedData = (data as EnrichedTimesheetEntry[]) || []
+        setTimesheets(typedData)
+        setFilteredTimesheets(typedData)
       } catch (err) {
         logger.error("Error fetching timesheets", err)
         setError(err instanceof Error ? err : new Error(String(err)))
