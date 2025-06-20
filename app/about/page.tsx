@@ -12,7 +12,7 @@ export default function AboutPage() {
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <Clock className="h-6 w-6" />
-              <span className="font-bold">AdTrack</span>
+              <span className="font-bold">TimeTrack AI</span>
             </Link>
             <nav className="flex items-center space-x-6 text-sm font-medium">
               <Link href="/features" className="transition-colors hover:text-foreground/80 text-foreground/60">
@@ -45,7 +45,7 @@ export default function AboutPage() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">About AdTrack</h1>
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">About TimeTrack AI</h1>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
                   We're on a mission to help agencies work smarter, not harder.
                 </p>
@@ -62,7 +62,7 @@ export default function AboutPage() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl xl:text-5xl/none">Our Story</h2>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    AdTrack was founded by Christopher Belgrave, a seasoned technology leader with extensive experience
+                    TimeTrack AI was founded by Christopher Belgrave, a seasoned technology leader with extensive experience
                     in digital product development and agency operations.
                   </p>
                 </div>
@@ -73,11 +73,11 @@ export default function AboutPage() {
                   </p>
                   <p>
                     Drawing from his background in software engineering and product management, Christopher built
-                    AdTrack to be the timesheet tool he always wished existed—one that people actually enjoy using while
+                    TimeTrack AI to be the timesheet tool he always wished existed—one that people actually enjoy using while
                     providing the insights agencies need to improve profitability.
                   </p>
                   <p>
-                    Today, AdTrack is used by hundreds of agencies worldwide, from boutique studios to global networks.
+                    Today, TimeTrack AI is used by hundreds of agencies worldwide, from boutique studios to global networks.
                     We're proud to help creative teams focus on what they do best—creating amazing work for their
                     clients—while we handle the time tracking and project management.
                   </p>
@@ -87,7 +87,7 @@ export default function AboutPage() {
                 src="/placeholder.svg?height=550&width=550"
                 width="550"
                 height="550"
-                alt="The AdTrack team"
+                alt="The TimeTrack AI team"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
             </div>
@@ -266,7 +266,7 @@ export default function AboutPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Leadership</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl">Meet the visionary behind AdTrack</p>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl">Meet the visionary behind TimeTrack AI</p>
               </div>
             </div>
 
@@ -282,7 +282,7 @@ export default function AboutPage() {
               <p className="text-muted-foreground mb-3">Founder & CEO</p>
               <p className="text-muted-foreground mb-6">
                 Christopher is a technology leader with over 15 years of experience in software development and digital
-                product management. Prior to founding AdTrack, he held leadership positions at several digital agencies
+                product management. Prior to founding TimeTrack AI, he held leadership positions at several digital agencies
                 and technology companies, where he developed a deep understanding of the challenges creative teams face
                 with time tracking and project management.
               </p>
@@ -316,7 +316,7 @@ export default function AboutPage() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Get in Touch</h2>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Have questions about AdTrack? We'd love to hear from you.
+                    Have questions about TimeTrack AI? We'd love to hear from you.
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -362,7 +362,7 @@ export default function AboutPage() {
                   style={{ border: 0, borderRadius: "0.5rem" }}
                   allowFullScreen
                   loading="lazy"
-                  title="AdTrack Office Location"
+                  title="TimeTrack AI Office Location"
                 ></iframe>
               </div>
             </div>
@@ -378,7 +378,7 @@ export default function AboutPage() {
                   Ready to Transform Your Agency's Workflow?
                 </h2>
                 <p className="max-w-[900px] text-primary-foreground/80 md:text-xl">
-                  Join thousands of agencies that have streamlined their operations with AdTrack.
+                  Join thousands of agencies that have streamlined their operations with TimeTrack AI.
                 </p>
               </div>
               <div className="space-x-4">
@@ -405,7 +405,7 @@ export default function AboutPage() {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            © 2024 AdTrack. All rights reserved.
+            © 2024 TimeTrack AI. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="text-sm text-muted-foreground underline-offset-4 hover:underline">

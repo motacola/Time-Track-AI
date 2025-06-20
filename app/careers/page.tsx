@@ -43,7 +43,7 @@ export default function CareersPage() {
       location: "Remote (UK)",
       type: "Full-time",
       salary: "£45,000 - £55,000",
-      description: "Help our customers get the most out of AdTrack by providing exceptional support and training.",
+      description: "Help our customers get the most out of TimeTrack AI by providing exceptional support and training.",
       slug: "customer-success-manager",
     },
     {
@@ -63,7 +63,7 @@ export default function CareersPage() {
       type: "Full-time",
       salary: "£35,000 - £45,000 + Commission",
       description:
-        "Join our sales team to help agencies discover how AdTrack can transform their time tracking and project management.",
+        "Join our sales team to help agencies discover how TimeTrack AI can transform their time tracking and project management.",
       slug: "sales-development-representative",
     },
   ]
@@ -88,7 +88,7 @@ export default function CareersPage() {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span className="font-bold text-xl">AdTrack</span>
+            <span className="font-bold text-xl">TimeTrack AI</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <Link href="/features" className="transition-colors hover:text-primary">
@@ -170,7 +170,7 @@ export default function CareersPage() {
           <div className="container px-4 md:px-6">
             <div className="grid gap-12 md:grid-cols-2 items-center">
               <div>
-                <h2 className="text-3xl font-bold tracking-tighter mb-4">Why work at AdTrack?</h2>
+                <h2 className="text-3xl font-bold tracking-tighter mb-4">Why work at TimeTrack AI?</h2>
                 <div className="space-y-4">
                   <div className="flex items-start">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mr-4">
@@ -269,7 +269,7 @@ export default function CareersPage() {
                 </div>
               </div>
               <div>
-                <img src="/placeholder.svg?height=400&width=600" alt="AdTrack team" className="rounded-xl shadow-lg" />
+                <img src="/placeholder.svg?height=400&width=600" alt="TimeTrack AI team" className="rounded-xl shadow-lg" />
               </div>
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function CareersPage() {
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                <span className="font-bold text-xl">AdTrack</span>
+                <span className="font-bold text-xl">TimeTrack AI</span>
               </div>
               <p className="text-muted-foreground mb-4">
                 AI-powered time tracking that's simple enough for your first day at work.
@@ -399,7 +399,7 @@ export default function CareersPage() {
             </div>
           </div>
           <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2025 AdTrack. All rights reserved.</p>
+            <p>© 2025 TimeTrack AI. All rights reserved.</p>
           </div>
         </div>
       </footer>

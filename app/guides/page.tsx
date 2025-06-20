@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge"
 export default function GuidesPage() {
   const guides = [
     {
-      title: "Getting Started with AdTrack",
-      description: "A comprehensive guide to setting up your AdTrack account and tracking your first time entry.",
+      title: "Getting Started with TimeTrack AI",
+      description: "A comprehensive guide to setting up your TimeTrack AI account and tracking your first time entry.",
       type: "Article",
       icon: <FileText className="h-8 w-8 text-primary" />,
       readTime: "10 min read",
@@ -17,7 +17,7 @@ export default function GuidesPage() {
     },
     {
       title: "Voice Commands for Time Tracking",
-      description: "Learn how to use voice commands to track time efficiently with AdTrack's AI assistant.",
+      description: "Learn how to use voice commands to track time efficiently with TimeTrack AI's AI assistant.",
       type: "Video",
       icon: <Video className="h-8 w-8 text-primary" />,
       readTime: "5 min watch",
@@ -25,7 +25,7 @@ export default function GuidesPage() {
     },
     {
       title: "Setting Up Projects and Clients",
-      description: "A step-by-step guide to organizing your work with projects and clients in AdTrack.",
+      description: "A step-by-step guide to organizing your work with projects and clients in TimeTrack AI.",
       type: "Article",
       icon: <FileText className="h-8 w-8 text-primary" />,
       readTime: "8 min read",
@@ -40,7 +40,7 @@ export default function GuidesPage() {
       slug: "custom-reports",
     },
     {
-      title: "Team Management in AdTrack",
+      title: "Team Management in TimeTrack AI",
       description: "A guide to adding team members, setting permissions, and managing workloads.",
       type: "Video",
       icon: <Video className="h-8 w-8 text-primary" />,
@@ -49,7 +49,7 @@ export default function GuidesPage() {
     },
     {
       title: "Integrating with Other Tools",
-      description: "Connect AdTrack with your favorite tools like Slack, Jira, and QuickBooks.",
+      description: "Connect TimeTrack AI with your favorite tools like Slack, Jira, and QuickBooks.",
       type: "Article",
       icon: <FileText className="h-8 w-8 text-primary" />,
       readTime: "15 min read",
@@ -85,7 +85,7 @@ export default function GuidesPage() {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span className="font-bold text-xl">AdTrack</span>
+            <span className="font-bold text-xl">TimeTrack AI</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <Link href="/features" className="transition-colors hover:text-primary">
@@ -116,9 +116,9 @@ export default function GuidesPage() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center text-center space-y-4 mb-8">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">AdTrack Guides</h1>
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">TimeTrack AI Guides</h1>
                 <p className="max-w-[700px] text-muted-foreground md:text-xl">
-                  Comprehensive guides to help you get the most out of AdTrack
+                  Comprehensive guides to help you get the most out of TimeTrack AI
                 </p>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function GuidesPage() {
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                <span className="font-bold text-xl">AdTrack</span>
+                <span className="font-bold text-xl">TimeTrack AI</span>
               </div>
               <p className="text-muted-foreground mb-4">
                 AI-powered time tracking that's simple enough for your first day at work.
@@ -280,7 +280,7 @@ export default function GuidesPage() {
             </div>
           </div>
           <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2025 AdTrack. All rights reserved.</p>
+            <p>© 2025 TimeTrack AI. All rights reserved.</p>
           </div>
         </div>
       </footer>
