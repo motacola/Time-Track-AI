@@ -1,6 +1,8 @@
 import { AiInsights } from "@/components/ai-insights"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { DashboardShell } from "@/components/dashboard-shell"
+import { DashboardHeader } from "@/components/dashboard-header"
 
 export const metadata = {
   title: "AI Insights | Agency Timesheet",
@@ -9,17 +11,20 @@ export const metadata = {
 
 export default function AiInsightsPage() {
   return (
-    <div className="container mx-auto py-6 space-y-8">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">AI Insights</h1>
-        <p className="text-muted-foreground">
-          AI-powered analysis of your timesheet data to help you work more efficiently.
-        </p>
-      </div>
-
-      <Tabs defaultValue="insights" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
+    <DashboardShell>
+      <DashboardHeader
+        heading="AI Insights"
+        text="AI-powered analysis of your timesheet data to help you work more efficiently."
+      />
+      {/* The original page had py-6 and space-y-8 on the container.
+          DashboardShell provides p-4 md:p-8 and gap-8 md:gap-10.
+          We can wrap the Tabs component in a div if specific spacing is needed,
+          or rely on DashboardShell's spacing. For now, let's use a simple div wrapper for content.
+      */}
+      <div className="grid gap-8"> {/* Consistent with other dashboard page content wrappers */}
+        <Tabs defaultValue="insights" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
         </TabsList>
@@ -57,5 +62,6 @@ export default function AiInsightsPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </DashboardShell>
   )
 }
