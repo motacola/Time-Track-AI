@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Mic, Send, Loader2 } from "lucide-react"
+import { Mic, Send, Loader2, Save } from "lucide-react"
 import { FormError } from "@/components/ui/form-error"
 import { DatabaseError } from "@/components/ui/database-error"
 import { AiError } from "@/components/ui/ai-error"
@@ -36,8 +36,10 @@ export default function NewTimesheetForm() {
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmittingAndAddingAnother, setIsSubmittingAndAddingAnother] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [loadingError, setLoadingError] = useState<Error | null>(null)
   const [aiError, setAiError] = useState<Error | null>(null)
 
@@ -123,6 +125,47 @@ export default function NewTimesheetForm() {
     }
   }
 
+  const resetFormFields = (keepProjectDetails: boolean = false) => {
+    if (!keepProjectDetails) {
+      setSelectedProject("")
+      setJobNumber("")
+    }
+    setDescription("")
+    setHours("")
+    // Keep date by default, or reset if needed: setDate(new Date().toISOString().split("T")[0])
+    setBillable(true)
+    setFormError(null)
+    setFieldErrors({})
+  }
+
+  const handleSaveAndAddAnother = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validateForm()) {
+      setFormError("Please correct the errors in the form")
+      return
+    }
+
+    try {
+      setIsSubmittingAndAddingAnother(true)
+      setFormError(null)
+
+      // Mock successful submission
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // Show success toast (implement a proper toast component later)
+      setShowSuccessToast(true)
+      setTimeout(() => setShowSuccessToast(false), 3000)
+
+      resetFormFields(true) // Keep project details for the next entry
+    } catch (err) {
+      logger.error("Error submitting timesheet", err)
+      setFormError("Failed to submit timesheet. Please try again.")
+    } finally {
+      setIsSubmittingAndAddingAnother(false)
+    }
+  }
+
   const handleVoiceInput = async () => {
     if (!navigator.mediaDevices || !window.SpeechRecognition) {
       setAiError(new Error("Voice recognition is not supported in your browser"))
@@ -142,8 +185,13 @@ export default function NewTimesheetForm() {
         // Process the voice input
         setTimeout(() => {
           setIsProcessing(false)
-          setDescription("Voice input processed description")
-          setHours("2")
+          // Simulate AI suggestion
+          const aiSuggestedDescription = "Updated software modules and attended daily stand-up meeting."
+          setDescription(
+            (prevDescription) =>
+              `${prevDescription ? prevDescription + " " : ""}AI Suggestion: ${aiSuggestedDescription}`,
+          )
+          // setHours("2"); // Example if AI also suggests hours
         }, 2000)
       }, 3000)
     } catch (err) {
@@ -160,6 +208,25 @@ export default function NewTimesheetForm() {
 
   return (
     <ErrorBoundaryWrapper>
+      {/* Basic Toast for "Save & Add Another" Success */}
+      {showSuccessToast && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "green",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: "5px",
+            zIndex: 1000,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+          }}
+        >
+          Timesheet saved successfully! Add another.
+        </div>
+      )}
       <Card>
         <CardContent className="p-6">
           {formError && (
@@ -280,19 +347,45 @@ export default function NewTimesheetForm() {
               <Label htmlFor="billable">Billable</Label>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Submit Timesheet
-                </>
-              )}
-            </Button>
+            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isSubmittingAndAddingAnother}
+                onClick={handleSubmit}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Submit Timesheet
+                  </>
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleSaveAndAddAnother}
+                disabled={isSubmittingAndAddingAnother || isSubmitting}
+              >
+                {isSubmittingAndAddingAnother ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save & Add Another
+                  </>
+                )}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>
