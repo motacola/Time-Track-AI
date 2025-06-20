@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter } from "next/navigation" // Added for navigation
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card" // Added CardFooter
+import { Button } from "@/components/ui/button" // Added Button
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search } from "lucide-react"
+import { Search, Edit3, Trash2, AlertTriangle } from "lucide-react" // Added Edit3, Trash2, AlertTriangle
 import { createClient } from "@/lib/supabase/client"
 import { LoadingFallback } from "@/components/ui/loading-fallback"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -18,6 +20,30 @@ export function TimesheetList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   const supabase = createClient()
+  const router = useRouter()
+
+  const handleEdit = (entryId: string) => {
+    router.push(`/timesheet/edit/${entryId}`)
+    // In a real app, you might open a modal or navigate to an edit page.
+    // For now, this simulates navigation. A full edit page is not in scope.
+  }
+
+  const handleDelete = async (entryId: string) => {
+    if (window.confirm("Are you sure you want to delete this timesheet entry?")) {
+      try {
+        // Simulate API call
+        // In a real app: await supabase.from('timesheet_entries').delete().match({ id: entryId });
+        // For now, just filter out from local state
+        setTimesheets((prev) => prev.filter((entry) => entry.id !== entryId))
+        setFilteredTimesheets((prev) => prev.filter((entry) => entry.id !== entryId))
+        logger.info(`Mock deleted timesheet entry with id: ${entryId}`)
+      } catch (err) {
+        logger.error("Error deleting timesheet entry (mock)", err)
+        // Display error to user
+        setError(new Error("Failed to delete entry. Please try again."))
+      }
+    }
+  }
 
   useEffect(() => {
     const fetchTimesheets = async () => {
@@ -141,10 +167,24 @@ export function TimesheetList() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
++              <CardFooter className="flex justify-end gap-2 p-4 border-t">
++                <Button variant="outline" size="sm" onClick={() => handleEdit(entry.id)}>
++                  <Edit3 className="mr-2 h-4 w-4" /> Edit
++                </Button>
++                <Button variant="destructive" size="sm" onClick={() => handleDelete(entry.id)}>
++                  <Trash2 className="mr-2 h-4 w-4" /> Delete
++                </Button>
++              </CardFooter>
++            </Card>
++          ))}
++        </div>
++      )}
++      {error && ( // Display general error if one occurs during delete (or fetch)
++        <div className="mt-4 flex items-center justify-center rounded-md border border-red-500 bg-red-50 p-4 text-red-700">
++          <AlertTriangle className="mr-2 h-5 w-5" />
++          <p>{error.message}</p>
++        </div>
++      )}
++    </div>
++  )
++}
