@@ -36,7 +36,7 @@ export function SmartAssistantChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: "Welcome to the AdTrack Smart Assistant! How can I help you today?",
+      content: "Welcome to the TimeTrack AI Smart Assistant! How can I help you today?",
       role: "assistant",
       timestamp: new Date(),
     },
