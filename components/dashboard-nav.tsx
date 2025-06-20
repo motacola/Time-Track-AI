@@ -27,7 +27,7 @@ export function DashboardNav() {
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <Clock className="h-6 w-6" />
-          <span>AdTrack</span>
+          <span>TimeTrack AI</span>
         </Link>
       </div>
       <div className="flex-1 overflow-auto py-2">
@@ -43,10 +43,10 @@ export function DashboardNav() {
             Dashboard
           </Link>
           <Link
-            href="/timesheets"
+            href="/timesheet"
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground hover:text-primary",
-              pathname === "/timesheets" && "bg-muted text-primary",
+              pathname === "/timesheet" && "bg-muted text-primary",
             )}
           >
             <Clock className="h-4 w-4" />

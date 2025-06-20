@@ -89,7 +89,7 @@ export default function BlogPage() {
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            <span className="font-bold text-xl">AdTrack</span>
+            <span className="font-bold text-xl">TimeTrack AI</span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <Link href="/features" className="transition-colors hover:text-primary">
@@ -120,7 +120,7 @@ export default function BlogPage() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center text-center space-y-4 mb-8">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">AdTrack Blog</h1>
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">TimeTrack AI Blog</h1>
                 <p className="max-w-[700px] text-muted-foreground md:text-xl">
                   Insights, tips, and stories about time tracking, productivity, and agency management
                 </p>
@@ -222,7 +222,7 @@ export default function BlogPage() {
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
-                <span className="font-bold text-xl">AdTrack</span>
+                <span className="font-bold text-xl">TimeTrack AI</span>
               </div>
               <p className="text-muted-foreground mb-4">
                 AI-powered time tracking that's simple enough for your first day at work.
@@ -310,7 +310,7 @@ export default function BlogPage() {
             </div>
           </div>
           <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2025 AdTrack. All rights reserved.</p>
+            <p>© 2025 TimeTrack AI. All rights reserved.</p>
           </div>
         </div>
       </footer>

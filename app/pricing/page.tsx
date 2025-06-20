@@ -15,7 +15,7 @@ export default function PricingPage() {
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <Clock className="h-6 w-6" />
-              <span className="font-bold">AdTrack</span>
+              <span className="font-bold">TimeTrack AI</span>
             </Link>
             <nav className="flex items-center space-x-6 text-sm font-medium">
               <Link href="/features" className="transition-colors hover:text-foreground/80 text-foreground/60">
@@ -576,7 +576,7 @@ export default function PricingPage() {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Frequently Asked Questions</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  Find answers to common questions about AdTrack
+                  Find answers to common questions about TimeTrack AI
                 </p>
               </div>
             </div>
@@ -663,7 +663,7 @@ export default function PricingPage() {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            © 2024 AdTrack. All rights reserved.
+            © 2024 TimeTrack AI. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="text-sm text-muted-foreground underline-offset-4 hover:underline">
