@@ -45,7 +45,7 @@ export function AiChatbot() {
   const [isMinimized, setIsMinimized] = useState(false)
   const [input, setInput] = useState("")
   const [messages, setMessages] = useState<Message[]>([
-    createAssistantMessage("Hi there! I'm your AdTrack assistant. How can I help you with your timesheets today?"),
+    createAssistantMessage("Hi there! I'm your TimeTrack AI assistant. How can I help you with your timesheets today?"),
   ])
   const [isLoading, setIsLoading] = useState(false)
   const [conversationId, setConversationId] = useState<string | null>(null)
@@ -260,7 +260,7 @@ export function AiChatbot() {
                   <Bot className="h-4 w-4 text-primary" />
                 </AvatarFallback>
               </Avatar>
-              <div className="font-medium">AdTrack Assistant</div>
+              <div className="font-medium">TimeTrack AI Assistant</div>
             </div>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMinimize}>
