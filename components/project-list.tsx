@@ -6,7 +6,7 @@ import { useState, useEffect, type FormEvent } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Clock, Send, Loader2, XIcon } from "lucide-react" // Added Send, Loader2
+import { Clock } from "lucide-react" // Removed Send, Loader2, XIcon as NewTimesheetForm handles its own icons
 import {
   Dialog,
   DialogContent,
@@ -16,17 +16,27 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox" // For billable
+// Input, Label, Textarea, Checkbox no longer needed directly here as NewTimesheetForm handles them
 import { LoadingFallback } from "@/components/ui/loading-fallback"
 import { EmptyState } from "@/components/ui/empty-state"
+// Import NewTimesheetForm
+import NewTimesheetForm from "@/app/timesheet/new/new-timesheet-form"
 import { DatabaseError } from "@/components/ui/database-error"
 import { logger } from "@/lib/logger"
 
+// Define an interface for the project items
+interface ProjectDisplayItem {
+  id: string
+  name: string
+  status: string
+  client: string
+  job_number?: string // Optional as it's conditionally rendered and might not exist on all mock objects
+  deadline: string // Could be more specific, e.g., string representing ISO date
+  created_at: string // Could be more specific
+}
+
 // Mock projects data
-const mockProjects = [
+const mockProjects: ProjectDisplayItem[] = [
   {
     id: "1",
     name: "Website Redesign",
@@ -75,7 +85,7 @@ const mockProjects = [
 ]
 
 export default function ProjectList() {
-  const [projects, setProjects] = useState<any[]>([])
+  const [projects, setProjects] = useState<ProjectDisplayItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   // const router = useRouter() // Not strictly needed if we remove navigation for Log Time
@@ -176,13 +186,36 @@ export default function ProjectList() {
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Log Time for: {project.name}</DialogTitle>
+                  {/* Optional: Add DialogDescription if NewTimesheetForm doesn't have its own prominent title/desc */}
                 </DialogHeader>
-                <QuickLogTimeForm
-                  projectId={project.id}
-                  projectName={project.name}
-                  jobNumber={project.job_number || ""}
-                  onFormSubmit={() => handleDialogChange(project.id, false)}
+                {/* Use the adapted NewTimesheetForm */}
+                <NewTimesheetForm
+                  isModalMode={true}
+                  initialProjectId={project.id}
+                  initialProjectName={project.name}
+                  initialJobNumber={project.job_number || ""}
+                  onFormSubmitSuccess={() => {
+                    handleDialogChange(project.id, false) // Close dialog on success
+                    // Toast notification will be handled by NewTimesheetForm or Step 4
+                  }}
                 />
+                 {/* The NewTimesheetForm should have its own submit/cancel buttons.
+                     If DialogFooter is still needed for an explicit DialogClose, it can be added,
+                     but usually the form's own cancel/submit would trigger closure via onFormSubmitSuccess.
+                     For now, assuming NewTimesheetForm's buttons are sufficient.
+                     A DialogClose button might be redundant if form has "Cancel" that calls onFormSubmitSuccess or similar.
+                     Let's remove the explicit DialogFooter here and rely on form's buttons.
+                     If NewTimesheetForm needs an explicit "Cancel" that closes the dialog without submitting,
+                     that logic would be internal to it or it would need another callback prop.
+                     The onFormSubmitSuccess is for successful submissions.
+                     NewTimesheetForm's "Submit" button will trigger onFormSubmitSuccess.
+                     What about "Cancel" from NewTimesheetForm in modal mode?
+                     NewTimesheetForm doesn't have an explicit "Cancel" button.
+                     The DialogClose can serve this. Let's add a minimal one if needed,
+                     or assume user closes via X icon or Escape key.
+                     For now, we'll rely on the X icon of DialogContent or Escape.
+                     Alternatively, NewTimesheetForm could be enhanced with a cancel button that calls onFormSubmitSuccess (or a different prop like onFormCancel).
+                 */}
               </DialogContent>
             </Dialog>
           </CardContent>
@@ -192,108 +225,4 @@ export default function ProjectList() {
   )
 }
 
-// Simplified Timesheet Form for the Dialog
-interface QuickLogTimeFormProps {
-  projectId: string
-  projectName: string
-  jobNumber: string
-  onFormSubmit: () => void // To close dialog
-}
-
-function QuickLogTimeForm({ projectId, projectName, jobNumber, onFormSubmit }: QuickLogTimeFormProps) {
-  const [description, setDescription] = useState(`Work on ${projectName}: `)
-  const [hours, setHours] = useState("")
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0])
-  const [billable, setBillable] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError(null)
-
-    if (!description || !hours || !date) {
-      setError("Please fill in all fields.")
-      return
-    }
-    if (isNaN(Number.parseFloat(hours)) || Number.parseFloat(hours) <= 0) {
-      setError("Please enter valid hours.")
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      logger.info("Quick log submitted:", { projectId, description, hours, date, billable })
-      // In a real app, you'd likely call a Supabase function here
-      alert(`Timesheet for ${projectName} submitted!`) // Simple feedback
-      onFormSubmit() // Close dialog
-    } catch (err) {
-      logger.error("Error submitting quick log", err)
-      setError("Failed to submit timesheet. Please try again.")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-      {error && <p className="text-sm text-red-500 bg-red-100 p-2 rounded-md">{error}</p>}
-      <div className="space-y-1">
-        <Label htmlFor="quick-log-project">Project</Label>
-        <Input id="quick-log-project" value={`${projectName} (${jobNumber || "N/A"})`} readOnly disabled />
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="quick-log-description">Description</Label>
-        <Textarea
-          id="quick-log-description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe the work done"
-          rows={3}
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
-          <Label htmlFor="quick-log-hours">Hours</Label>
-          <Input
-            id="quick-log-hours"
-            type="number"
-            step="0.25"
-            min="0.25"
-            value={hours}
-            onChange={(e) => setHours(e.target.value)}
-            placeholder="e.g., 2.5"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor="quick-log-date">Date</Label>
-          <Input id="quick-log-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </div>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox id="quick-log-billable" checked={billable} onCheckedChange={(checked) => setBillable(checked as boolean)} />
-        <Label htmlFor="quick-log-billable">Billable</Label>
-      </div>
-      <DialogFooter className="sm:justify-start pt-2">
-        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...
-            </>
-          ) : (
-            <>
-              <Send className="mr-2 h-4 w-4" /> Submit Log
-            </>
-          )}
-        </Button>
-        <DialogClose asChild>
-          <Button type="button" variant="outline" className="w-full sm:w-auto mt-2 sm:mt-0">
-             <XIcon className="mr-2 h-4 w-4" /> Cancel
-          </Button>
-        </DialogClose>
-      </DialogFooter>
-    </form>
-  )
-}
+// QuickLogTimeForm and its interface are no longer needed as NewTimesheetForm is used.

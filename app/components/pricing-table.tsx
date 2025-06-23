@@ -9,8 +9,9 @@ export function PricingTable() {
         <div className="flex-1">
           <h3 className="text-2xl font-bold text-center">Starter</h3>
           <div className="mt-4 text-center">
-            <span className="text-4xl font-bold">£9</span>
+            <span className="text-4xl font-bold">$4</span>
             <span className="text-gray-500 dark:text-gray-400">/month per user</span>
+            <p className="text-xs text-muted-foreground">(Billed annually)</p>
           </div>
           <ul className="mt-6 space-y-4">
             <li className="flex items-start">
@@ -46,8 +47,9 @@ export function PricingTable() {
         <div className="flex-1">
           <h3 className="text-2xl font-bold text-center">Professional</h3>
           <div className="mt-4 text-center">
-            <span className="text-4xl font-bold">£19</span>
+            <span className="text-4xl font-bold">$8</span>
             <span className="text-gray-500 dark:text-gray-400">/month per user</span>
+            <p className="text-xs text-muted-foreground">(Billed annually)</p>
           </div>
           <ul className="mt-6 space-y-4">
             <li className="flex items-start">
@@ -86,8 +88,9 @@ export function PricingTable() {
         <div className="flex-1">
           <h3 className="text-2xl font-bold text-center">Enterprise</h3>
           <div className="mt-4 text-center">
-            <span className="text-4xl font-bold">£39</span>
+            <span className="text-4xl font-bold">$16</span>
             <span className="text-gray-500 dark:text-gray-400">/month per user</span>
+            <p className="text-xs text-muted-foreground">(Billed annually)</p>
           </div>
           <ul className="mt-6 space-y-4">
             <li className="flex items-start">

@@ -15,9 +15,16 @@ import { DatabaseError } from "@/components/ui/database-error"
 import { AiError } from "@/components/ui/ai-error"
 import { ErrorBoundaryWrapper } from "@/components/ui/error-boundary-wrapper"
 import { logger } from "@/lib/logger"
+import { toast } from "sonner" // Import toast
+
+interface Project {
+  id: string
+  name: string
+  job_number: string
+}
 
 // Mock projects data
-const MOCK_PROJECTS = [
+const MOCK_PROJECTS: Project[] = [
   { id: "1", name: "Website Redesign", job_number: "JOB-123" },
   { id: "2", name: "Mobile App Development", job_number: "JOB-456" },
   { id: "3", name: "Brand Identity", job_number: "JOB-789" },
@@ -25,55 +32,87 @@ const MOCK_PROJECTS = [
   { id: "5", name: "E-commerce Platform", job_number: "JOB-202" },
 ]
 
-export default function NewTimesheetForm() {
-  const [projects, setProjects] = useState<any[]>(MOCK_PROJECTS)
-  const [selectedProject, setSelectedProject] = useState("")
-  const [description, setDescription] = useState("")
+interface NewTimesheetFormProps {
+  isModalMode?: boolean
+  initialProjectId?: string
+  initialProjectName?: string
+  initialJobNumber?: string
+  onFormSubmitSuccess?: () => void
+  // Optional: A specific callback if "Save & Add Another" needs different handling in modal
+  // onFormSaveAndAddAnotherSuccess?: () => void;
+}
+
+export default function NewTimesheetForm({
+  isModalMode = false,
+  initialProjectId,
+  initialProjectName,
+  initialJobNumber,
+  onFormSubmitSuccess,
+}: NewTimesheetFormProps) {
+  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS)
+  const [selectedProject, setSelectedProject] = useState(initialProjectId || "")
+  // Initialize description only if initialProjectName is provided, otherwise default to empty.
+  // The URL param useEffect will handle it if not in modal mode.
+  const [description, setDescription] = useState(initialProjectName && isModalMode ? `Work on ${initialProjectName}: ` : "")
   const [hours, setHours] = useState("")
   const [date, setDate] = useState(new Date().toISOString().split("T")[0])
   const [billable, setBillable] = useState(true)
-  const [jobNumber, setJobNumber] = useState("")
+  const [jobNumber, setJobNumber] = useState(initialJobNumber || "") // Initialize with prop
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmittingAndAddingAnother, setIsSubmittingAndAddingAnother] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const [showSuccessToast, setShowSuccessToast] = useState(false)
+  // const [showSuccessToast, setShowSuccessToast] = useState(false) // No longer needed
   const [loadingError, setLoadingError] = useState<Error | null>(null)
   const [aiError, setAiError] = useState<Error | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Get project ID from URL if available
+  // Effect to load from URL search params if not in modal mode or if modal mode doesn't have initial project
   useEffect(() => {
-    const projectId = searchParams.get("project")
-    const projectName = searchParams.get("projectName")
-    const jobNum = searchParams.get("jobNumber")
+    if (!isModalMode) {
+      const projectIdFromUrl = searchParams.get("project")
+      const projectNameFromUrl = searchParams.get("projectName")
+      const jobNumFromUrl = searchParams.get("jobNumber")
 
-    if (projectId) {
-      setSelectedProject(projectId)
-    }
-
-    if (jobNum) {
-      setJobNumber(jobNum)
-    }
-
-    if (projectName) {
-      setDescription(`Work on ${projectName}: `)
-    }
-  }, [searchParams])
-
-  // Update job number when project changes
-  useEffect(() => {
-    if (selectedProject) {
-      const project = projects.find((p) => p.id === selectedProject)
-      if (project && project.job_number) {
-        setJobNumber(project.job_number)
+      if (projectIdFromUrl) {
+        setSelectedProject(projectIdFromUrl)
+      }
+      if (jobNumFromUrl) {
+        setJobNumber(jobNumFromUrl)
+      }
+      // Set description from URL only if it's not already set (e.g. by initialProjectName in modal mode)
+      if (projectNameFromUrl && (!description || (isModalMode && !initialProjectName))) {
+        setDescription(`Work on ${projectNameFromUrl}: `)
       }
     }
-  }, [selectedProject, projects])
+  }, [searchParams, isModalMode, description, initialProjectName]) // Removed initialProject related dependencies as they are for initial state
+
+  // Update job number when selectedProject changes, respecting modal mode
+  useEffect(() => {
+    if (isModalMode && initialProjectId && selectedProject === initialProjectId) {
+      // In modal mode, if the selected project is the initial project,
+      // ensure the job number is the initial job number.
+      // This handles cases where user might clear selection and re-select the initial project.
+      if (initialJobNumber) {
+        setJobNumber(initialJobNumber)
+      } else {
+        // If initial project has no job number, ensure it's clear
+        const project = projects.find((p) => p.id === initialProjectId)
+        setJobNumber(project?.job_number || "")
+      }
+    } else if (selectedProject) {
+      // For any other selected project (or in page mode)
+      const project = projects.find((p) => p.id === selectedProject)
+      setJobNumber(project?.job_number || "")
+    } else {
+      // No project selected, not in modal mode for initial project
+      setJobNumber("")
+    }
+  }, [selectedProject, projects, isModalMode, initialProjectId, initialJobNumber])
 
   const validateForm = () => {
     const errors: Record<string, string> = {}
@@ -115,8 +154,14 @@ export default function NewTimesheetForm() {
       // Mock successful submission
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Redirect to timesheet page
-      router.push("/timesheet")
+      if (isModalMode && onFormSubmitSuccess) {
+        onFormSubmitSuccess()
+        // Potentially reset form fields if desired after modal submission
+        // resetFormFields(); // Or resetFormFields(true) to keep project for "Save & Add Another" style
+      } else {
+        // Redirect to timesheet page for non-modal submissions
+        router.push("/timesheet")
+      }
     } catch (err) {
       logger.error("Error submitting timesheet", err)
       setFormError("Failed to submit timesheet. Please try again.")
@@ -153,11 +198,18 @@ export default function NewTimesheetForm() {
       // Mock successful submission
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Show success toast (implement a proper toast component later)
-      setShowSuccessToast(true)
-      setTimeout(() => setShowSuccessToast(false), 3000)
+      // Show success toast
+      toast.success("Timesheet saved! Add another.")
 
       resetFormFields(true) // Keep project details for the next entry
+
+      if (isModalMode && onFormSubmitSuccess) {
+        // For "Save & Add Another" in modal, we might not want to call the primary onFormSubmitSuccess
+        // which typically closes the modal. Instead, the toast is the feedback.
+        // Or, a different callback like onFormSaveAndAddAnotherSuccess could be used.
+        // For now, just resetting and showing toast is fine. The modal remains open.
+      }
+      // No redirect for "Save & Add Another"
     } catch (err) {
       logger.error("Error submitting timesheet", err)
       setFormError("Failed to submit timesheet. Please try again.")
@@ -208,25 +260,7 @@ export default function NewTimesheetForm() {
 
   return (
     <ErrorBoundaryWrapper>
-      {/* Basic Toast for "Save & Add Another" Success */}
-      {showSuccessToast && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "green",
-            color: "white",
-            padding: "10px 20px",
-            borderRadius: "5px",
-            zIndex: 1000,
-            boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-          }}
-        >
-          Timesheet saved successfully! Add another.
-        </div>
-      )}
+      {/* Old custom toast removed */}
       <Card>
         <CardContent className="p-6">
           {formError && (
@@ -252,6 +286,7 @@ export default function NewTimesheetForm() {
                 className="w-full rounded-md border border-gray-300 p-2 dark:border-gray-700 dark:bg-gray-800"
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
+                disabled={isModalMode && !!initialProjectId} // Disable if in modal mode with an initial project
               >
                 <option value="">Select a project</option>
                 {projects.map((project) => (
@@ -270,7 +305,8 @@ export default function NewTimesheetForm() {
                 value={jobNumber}
                 onChange={(e) => setJobNumber(e.target.value)}
                 placeholder="Job number"
-                readOnly={!!searchParams.get("jobNumber")}
+                // Read-only if in modal mode with an initial project, or if set by URL param in page mode
+                readOnly={(isModalMode && !!initialProjectId) || (!isModalMode && !!searchParams.get("jobNumber"))}
               />
             </div>
 
