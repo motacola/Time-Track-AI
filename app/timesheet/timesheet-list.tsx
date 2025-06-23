@@ -167,24 +167,24 @@ export function TimesheetList() {
                   </div>
                 </div>
               </CardContent>
-+              <CardFooter className="flex justify-end gap-2 p-4 border-t">
-+                <Button variant="outline" size="sm" onClick={() => handleEdit(entry.id)}>
-+                  <Edit3 className="mr-2 h-4 w-4" /> Edit
-+                </Button>
-+                <Button variant="destructive" size="sm" onClick={() => handleDelete(entry.id)}>
-+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
-+                </Button>
-+              </CardFooter>
-+            </Card>
-+          ))}
-+        </div>
-+      )}
-+      {error && ( // Display general error if one occurs during delete (or fetch)
-+        <div className="mt-4 flex items-center justify-center rounded-md border border-red-500 bg-red-50 p-4 text-red-700">
-+          <AlertTriangle className="mr-2 h-5 w-5" />
-+          <p>{error.message}</p>
-+        </div>
-+      )}
-+    </div>
-+  )
-+}
+              <CardFooter className="flex justify-end gap-2 p-4 border-t">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(entry.id)}>
+                  <Edit3 className="mr-2 h-4 w-4" /> Edit
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => handleDelete(entry.id)}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+      {error && ( // Display general error if one occurs during delete (or fetch)
+        <div className="mt-4 flex items-center justify-center rounded-md border border-red-500 bg-red-50 p-4 text-red-700">
+          <AlertTriangle className="mr-2 h-5 w-5" />
+          <p>{error.message}</p>
+        </div>
+      )}
+    </div>
+  )
+}
