@@ -1,20 +1,20 @@
-import { Link } from "react-router-dom"
+import Link from "next/link"
 
 const DashboardNav = () => {
   return (
     <nav>
       <ul>
         <li>
-          <Link to="/home">Home</Link>
+          <Link href="/home">Home</Link>
         </li>
         <li>
-          <Link to="/profile">Profile</Link>
+          <Link href="/profile">Profile</Link>
         </li>
         <li>
-          <Link to="/settings">Settings</Link>
+          <Link href="/settings">Settings</Link>
         </li>
         <li>
-          <Link to="/logout">Logout</Link>
+          <Link href="/logout">Logout</Link>
         </li>
       </ul>
     </nav>
@@ -22,4 +22,3 @@ const DashboardNav = () => {
 }
 
 export default DashboardNav
-</merged_code>

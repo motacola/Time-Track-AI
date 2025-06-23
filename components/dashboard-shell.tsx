@@ -1,6 +1,6 @@
 import type React from "react"
 import { cn } from "@/lib/utils"
-import { DashboardNav } from "@/components/dashboard-nav"
+import DashboardNav from "@/components/dashboard-nav"
 
 interface DashboardShellProps extends React.HTMLAttributes<HTMLDivElement> {}
 
