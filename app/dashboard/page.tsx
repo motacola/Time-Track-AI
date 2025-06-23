@@ -1,10 +1,17 @@
+import { Suspense } from "react"
 import { DashboardContent } from "./dashboard-content"
-import { getMockTimesheetEntries, getMockProjects } from "@/lib/mock-data"
+import { LoadingFallback } from "@/components/ui/loading-fallback"
 
-export default async function DashboardPage() {
-  // Get mock data
-  const timesheetEntries = getMockTimesheetEntries()
-  const projects = getMockProjects()
+export default function DashboardPage() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      </div>
 
-  return <DashboardContent timesheetEntries={timesheetEntries} projects={projects} isAuthenticated={true} />
+      <Suspense fallback={<LoadingFallback title="Loading dashboard..." />}>
+        <DashboardContent />
+      </Suspense>
+    </div>
+  )
 }
