@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createUserMessage, createAssistantMessage, sendChatMessage } from "@/lib/chat-utils"
+import supabase from "@/lib/supabase/client"
 
 type Message = {
   id: string
@@ -62,6 +63,14 @@ export function SmartAssistantChat() {
   const handleSend = async () => {
     if (input.trim()) {
       try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) {
+          setError("Please log in to use the chat feature")
+          return
+        }
+
         // Add user message
         const userMessage = createUserMessage(input)
         setMessages((prev) => [...prev, userMessage])
@@ -86,7 +95,14 @@ export function SmartAssistantChat() {
           // Could trigger a notification or update UI here
         }
       } catch (err) {
-        setError("Failed to get a response. Please try again.")
+        if (err.message?.includes("Unauthorized")) {
+          setError("Please log in to use the chat feature. Redirecting to login...")
+          setTimeout(() => {
+            window.location.href = "/login"
+          }, 2000)
+        } else {
+          setError("Failed to get a response. Please try again.")
+        }
         console.error("Chat error:", err)
       } finally {
         setIsLoading(false)
