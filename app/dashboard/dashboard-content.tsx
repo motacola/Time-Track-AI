@@ -38,6 +38,7 @@ import { Progress } from "@/components/ui/progress"
 import { VoiceCommandPanel } from "@/components/voice-command-panel"
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { DashboardCalendar } from "@/components/dashboard-calendar"
 
 // Define proper types for the props
 interface DashboardContentProps {
@@ -126,7 +127,7 @@ export function DashboardContent({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="relative"
+                    className="relative bg-transparent"
                     onClick={() => setShowVoicePanel(!showVoicePanel)}
                   >
                     <Headphones className="h-[1.2rem] w-[1.2rem]" />
@@ -143,7 +144,11 @@ export function DashboardContent({
               <Mic className="h-4 w-4" />
               <span className="hidden sm:inline">Voice Entry</span>
             </Button>
-            <Button variant="outline" className="gap-1.5" onClick={() => router.push("/timesheet/new?tab=text")}>
+            <Button
+              variant="outline"
+              className="gap-1.5 bg-transparent"
+              onClick={() => router.push("/timesheet/new?tab=text")}
+            >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">New Entry</span>
             </Button>
@@ -395,11 +400,11 @@ export function DashboardContent({
                   <CardDescription>Your team's most recent time entries</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="h-8">
+                  <Button variant="outline" size="sm" className="h-8 bg-transparent">
                     <Filter className="h-3.5 w-3.5 mr-1" />
                     Filter
                   </Button>
-                  <Button variant="outline" size="sm" className="h-8">
+                  <Button variant="outline" size="sm" className="h-8 bg-transparent">
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     Add New
                   </Button>
@@ -422,7 +427,7 @@ export function DashboardContent({
                   <CardTitle>Upcoming Deadlines</CardTitle>
                   <CardDescription>Projects due in the next 14 days</CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="h-8">
+                <Button variant="outline" size="sm" className="h-8 bg-transparent">
                   <Filter className="h-3.5 w-3.5 mr-1" />
                   Filter
                 </Button>
@@ -446,7 +451,7 @@ export function DashboardContent({
                   <CardTitle>Team Activity</CardTitle>
                   <CardDescription>Hours logged by team members this week</CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="h-8">
+                <Button variant="outline" size="sm" className="h-8 bg-transparent">
                   <Filter className="h-3.5 w-3.5 mr-1" />
                   Filter
                 </Button>
@@ -471,10 +476,7 @@ export function DashboardContent({
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="grid gap-2">
-                  {/* Calendar would go here */}
-                  <div className="rounded-md bg-muted p-8 text-center">Calendar component would render here</div>
-                </div>
+                <DashboardCalendar />
               </CardContent>
               <CardFooter className="flex justify-between border-t px-6 py-3">
                 <p className="text-xs text-muted-foreground">Showing next 7 days</p>
