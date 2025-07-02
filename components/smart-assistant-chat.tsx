@@ -11,7 +11,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { createUserMessage, createAssistantMessage } from "@/lib/chat-utils"
+import { createUserMessage, createAssistantMessage, sendChatMessage } from "@/lib/chat-utils"
+import supabase from "@/lib/supabase/client"
 
 type Message = {
   id: string
@@ -28,7 +29,6 @@ type Message = {
 declare global {
   interface Window {
     webkitSpeechRecognition: any
-    SpeechRecognition: any
   }
 }
 
@@ -37,7 +37,7 @@ export function SmartAssistantChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      content: "Welcome to the AdTrack Smart Assistant powered by Gemini! How can I help you today?",
+      content: "Welcome to the AdTrack Smart Assistant! How can I help you today?",
       role: "assistant",
       timestamp: new Date(),
     },
@@ -53,79 +53,6 @@ export function SmartAssistantChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [conversationId, setConversationId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [user, setUser] = useState<any>(null)
-  const [authChecked, setAuthChecked] = useState(false)
-  const [demoMode, setDemoMode] = useState(false)
-
-  // Check authentication on component mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        console.log("Starting auth check...")
-
-        // Try to import and use Supabase
-        try {
-          const supabase = (await import("@/lib/supabase/client")).default
-
-          // First, try to get the current session
-          const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
-
-          console.log("Session check result:", {
-            session: sessionData.session?.user?.email,
-            error: sessionError?.message,
-          })
-
-          if (sessionError) {
-            console.warn("Session error:", sessionError)
-            // Don't throw error, fall back to demo mode
-            setDemoMode(true)
-            setUser({ email: "demo@adtrack.com", id: "demo-user" })
-            setError(null)
-          } else if (sessionData.session) {
-            setUser(sessionData.session.user)
-            console.log("User authenticated via session:", sessionData.session.user.email)
-            setError(null)
-          } else {
-            // If no session, try getUser as fallback
-            console.log("No session found, trying getUser...")
-            const { data: userData, error: userError } = await supabase.auth.getUser()
-
-            if (userError) {
-              console.warn("User error:", userError)
-              // Fall back to demo mode
-              setDemoMode(true)
-              setUser({ email: "demo@adtrack.com", id: "demo-user" })
-              setError(null)
-            } else if (userData.user) {
-              setUser(userData.user)
-              console.log("User authenticated via getUser:", userData.user.email)
-              setError(null)
-            } else {
-              console.log("No user found, enabling demo mode")
-              setDemoMode(true)
-              setUser({ email: "demo@adtrack.com", id: "demo-user" })
-              setError(null)
-            }
-          }
-        } catch (supabaseError) {
-          console.warn("Supabase not available, enabling demo mode:", supabaseError)
-          setDemoMode(true)
-          setUser({ email: "demo@adtrack.com", id: "demo-user" })
-          setError(null)
-        }
-      } catch (err) {
-        console.error("Auth check failed:", err)
-        // Fall back to demo mode instead of showing error
-        setDemoMode(true)
-        setUser({ email: "demo@adtrack.com", id: "demo-user" })
-        setError(null)
-      } finally {
-        setAuthChecked(true)
-      }
-    }
-
-    checkAuth()
-  }, [])
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -136,6 +63,14 @@ export function SmartAssistantChat() {
   const handleSend = async () => {
     if (input.trim()) {
       try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (!user) {
+          setError("Please log in to use the chat feature")
+          return
+        }
+
         // Add user message
         const userMessage = createUserMessage(input)
         setMessages((prev) => [...prev, userMessage])
@@ -143,68 +78,32 @@ export function SmartAssistantChat() {
         setIsLoading(true)
         setError(null)
 
-        console.log("Sending message:", input)
+        // Send to API
+        const result = await sendChatMessage(input, conversationId || undefined)
 
-        // If in demo mode, provide mock responses
-        if (demoMode) {
-          // Simulate API delay
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-
-          let response = "I'm running in demo mode. "
-
-          // Simple keyword-based responses
-          if (input.toLowerCase().includes("time") || input.toLowerCase().includes("log")) {
-            response +=
-              "I can help you log time entries! In the full version, I would create timesheet entries based on your description."
-          } else if (input.toLowerCase().includes("project")) {
-            response +=
-              "Here are your demo projects: Website Redesign (80% complete), Mobile App (45% complete), Brand Campaign (20% complete)."
-          } else if (input.toLowerCase().includes("report")) {
-            response +=
-              "I can generate reports showing your time tracking data, project progress, and productivity insights."
-          } else if (input.toLowerCase().includes("insight")) {
-            response +=
-              "Based on your demo data: You're most productive on Tuesdays, averaging 7.5 hours. Consider scheduling important tasks then!"
-          } else {
-            response +=
-              "I can help you with time tracking, project management, reports, and AI insights. Try asking about logging time or viewing projects!"
-          }
-
-          const assistantMessage = createAssistantMessage(response)
-          setMessages((prev) => [...prev, assistantMessage])
-        } else {
-          // Try to send to real API
-          const result = await fetch("/api/chat", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              message: input,
-              conversationId: conversationId || undefined,
-            }),
-          })
-
-          if (!result.ok) {
-            const errorData = await result.json()
-            throw new Error(errorData.error || `HTTP ${result.status}`)
-          }
-
-          const data = await result.json()
-          console.log("API response:", data)
-
-          // Set conversation ID if not already set
-          if (!conversationId && data.conversationId) {
-            setConversationId(data.conversationId)
-          }
-
-          // Add assistant response
-          const assistantMessage = createAssistantMessage(data.response, data.action)
-          setMessages((prev) => [...prev, assistantMessage])
+        // Set conversation ID if not already set
+        if (!conversationId && result.conversationId) {
+          setConversationId(result.conversationId)
         }
-      } catch (err: any) {
+
+        // Add assistant response
+        const assistantMessage = createAssistantMessage(result.response, result.action)
+        setMessages((prev) => [...prev, assistantMessage])
+
+        // If there was a successful timesheet entry, show a notification or update UI
+        if (result.action?.success && result.action?.data) {
+          // Could trigger a notification or update UI here
+        }
+      } catch (err) {
+        if (err.message?.includes("Unauthorized")) {
+          setError("Please log in to use the chat feature. Redirecting to login...")
+          setTimeout(() => {
+            window.location.href = "/login"
+          }, 2000)
+        } else {
+          setError("Failed to get a response. Please try again.")
+        }
         console.error("Chat error:", err)
-        setError(`Failed to get a response: ${err.message || "Unknown error"}`)
       } finally {
         setIsLoading(false)
       }
@@ -218,12 +117,54 @@ export function SmartAssistantChat() {
   }
 
   const handleVoiceInput = () => {
-    setError("Voice input is temporarily disabled due to connectivity issues. Please type your message instead.")
+    if (!("webkitSpeechRecognition" in window)) {
+      setError("Voice input is not supported in your browser")
+      return
+    }
+
+    try {
+      setIsListening(true)
+
+      // @ts-ignore - WebkitSpeechRecognition is not in the types
+      const recognition = new window.webkitSpeechRecognition()
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.lang = "en-US"
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript
+        setInput(transcript)
+        setIsListening(false)
+      }
+
+      recognition.onerror = () => {
+        setIsListening(false)
+        setError("Error recognizing speech. Please try again.")
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+      }
+
+      recognition.start()
+    } catch (err) {
+      setIsListening(false)
+      setError("Error starting voice recognition")
+      console.error("Voice recognition error:", err)
+    }
   }
 
-  const stopListening = () => {
-    setIsListening(false)
-    setError(null)
+  const simulateVoiceInput = () => {
+    setIsListening(true)
+
+    // Simulate processing voice input
+    setTimeout(() => {
+      setInput("Show me my weekly summary and hours logged")
+      setIsListening(false)
+
+      // Auto-send after a short delay
+      setTimeout(handleSend, 500)
+    }, 2000)
   }
 
   const renderAttachment = (attachment: Message["attachments"][0]) => {
@@ -318,36 +259,10 @@ export function SmartAssistantChat() {
     }
   }
 
-  // Show loading state while checking auth
-  if (!authChecked) {
-    return (
-      <div className="flex flex-col h-[calc(100vh-13rem)] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin mb-4" />
-        <p className="text-muted-foreground">Initializing Smart Assistant...</p>
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-col h-[calc(100vh-13rem)]">
       <ScrollArea className="flex-1 p-4">
         <div className="flex flex-col gap-4">
-          {user && (
-            <div className="text-center text-sm text-muted-foreground mb-4">
-              {demoMode ? (
-                <div className="flex items-center justify-center gap-2">
-                  <span>Demo Mode: {user.email}</span>
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">PREVIEW</span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center gap-2">
-                  <span>Logged in as: {user.email}</span>
-                  <span className="text-green-600">● Connected</span>
-                </div>
-              )}
-            </div>
-          )}
-
           {messages.map((message) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
               <div className="flex gap-3 max-w-[80%]">
@@ -416,13 +331,11 @@ export function SmartAssistantChat() {
           <Button
             variant="outline"
             size="icon"
-            className="opacity-50 cursor-not-allowed"
+            className={`${isListening ? "bg-red-100 text-red-500 border-red-200" : ""}`}
             onClick={handleVoiceInput}
-            disabled={true}
-            title="Voice input temporarily unavailable"
           >
             <Mic className="h-4 w-4" />
-            <span className="sr-only">Voice input unavailable</span>
+            <span className="sr-only">Voice input</span>
           </Button>
           <Input
             placeholder="Type a message or use voice input..."
@@ -438,7 +351,11 @@ export function SmartAssistantChat() {
           </Button>
         </div>
 
-        {/* Remove the listening indicator since voice is disabled */}
+        {isListening && (
+          <div className="mt-2 text-center text-sm text-muted-foreground">
+            Listening... Speak clearly into your microphone
+          </div>
+        )}
       </div>
     </div>
   )

@@ -7,9 +7,41 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 export default function FeaturesPage() {
   return (
     <div className="flex min-h-screen flex-col">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <div className="mr-4 flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <Clock className="h-6 w-6" />
+              <span className="font-bold">AdTrack</span>
+            </Link>
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              <Link href="/features" className="transition-colors hover:text-foreground/80 text-foreground">
+                Features
+              </Link>
+              <Link href="/pricing" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Pricing
+              </Link>
+              <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                About
+              </Link>
+            </nav>
+          </div>
+          <div className="ml-auto flex items-center space-x-4">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">
+                Login
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm">Get Started</Button>
+            </Link>
+          </div>
+        </div>
+      </header>
+
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
@@ -17,8 +49,8 @@ export default function FeaturesPage() {
                   Powerful Features for Modern Agencies
                 </h1>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  Discover how AdTrack can transform your agency's workflow with intelligent time tracking, project
-                  management, and AI-powered insights.
+                  AdTrack combines time tracking, project management, and AI-powered insights to help your agency work
+                  smarter and more profitably.
                 </p>
               </div>
               <div className="space-x-4">
@@ -77,7 +109,7 @@ export default function FeaturesPage() {
                 </CardContent>
                 <CardFooter>
                   <Link href="/features/time-tracking">
-                    <Button variant="outline" className="gap-1 bg-transparent">
+                    <Button variant="outline" className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -114,7 +146,7 @@ export default function FeaturesPage() {
                 </CardContent>
                 <CardFooter>
                   <Link href="/features/project-management">
-                    <Button variant="outline" className="gap-1 bg-transparent">
+                    <Button variant="outline" className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -151,7 +183,7 @@ export default function FeaturesPage() {
                 </CardContent>
                 <CardFooter>
                   <Link href="/features/reporting">
-                    <Button variant="outline" className="gap-1 bg-transparent">
+                    <Button variant="outline" className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -206,8 +238,8 @@ export default function FeaturesPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Link href="/ai-insights">
-                    <Button variant="outline" className="gap-1 bg-transparent">
+                  <Link href="/features/ai-insights">
+                    <Button variant="outline" className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -243,8 +275,8 @@ export default function FeaturesPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Link href="/smart-assistant">
-                    <Button variant="outline" className="gap-1 bg-transparent">
+                  <Link href="/features/smart-assistant">
+                    <Button variant="outline" className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -280,8 +312,8 @@ export default function FeaturesPage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Link href="/ai-predictions">
-                    <Button variant="outline" className="gap-1 bg-transparent">
+                  <Link href="/features/ai-predictions">
+                    <Button variant="outline" className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
@@ -324,7 +356,7 @@ export default function FeaturesPage() {
                   </li>
                 </ul>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Link href="/clients">
+                  <Link href="/features/client-management">
                     <Button className="gap-1">
                       Learn More <ArrowRight className="h-4 w-4" />
                     </Button>
@@ -348,7 +380,7 @@ export default function FeaturesPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  {"Ready to Transform Your Agency's Workflow?"}
+                  Ready to Transform Your Agency's Workflow?
                 </h2>
                 <p className="max-w-[900px] text-primary-foreground/80 md:text-xl">
                   Join thousands of agencies that have streamlined their operations with AdTrack.
