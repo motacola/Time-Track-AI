@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import { Configuration, OpenAIApi } from "openai"
+import OpenAI from "openai"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
@@ -8,10 +8,7 @@ const openaiApiKey = process.env.OPENAI_API_KEY || ""
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-const configuration = new Configuration({
-  apiKey: openaiApiKey,
-})
-const openai = new OpenAIApi(configuration)
+const openai = new OpenAI({ apiKey: openaiApiKey })
 
 export async function POST(req: NextRequest) {
   // Check authentication
@@ -26,7 +23,32 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { message } = await req.json()
+    const { message, conversationId } = await req.json()
+
+    let convId = conversationId
+    if (!convId) {
+      const { data: convData, error: convError } = await supabase
+        .from("chat_conversations")
+        .insert({ user_id: user.id })
+        .select("id")
+        .single()
+
+      if (convError || !convData) {
+        console.error("Error creating conversation:", convError?.message)
+        return NextResponse.json(
+          { error: "Failed to create conversation" },
+          { status: 500 },
+        )
+      }
+
+      convId = convData.id
+    }
+
+    await supabase.from("chat_messages").insert({
+      conversation_id: convId,
+      role: "user",
+      content: message,
+    })
 
     // Add user context to the message processing
     const userContext = {
@@ -37,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     const prompt = `You are a helpful AI assistant. The user is: ${userContext.email}. Answer the question as accurately as possible.\n\n${message}`
 
-    const completion = await openai.createCompletion({
+    const completion = await openai.completions.create({
       model: "text-davinci-003",
       prompt: prompt,
       max_tokens: 200,
@@ -46,9 +68,15 @@ export async function POST(req: NextRequest) {
       stop: ["\n"],
     })
 
-    const aiResponse = completion.data.choices[0].text
+    const aiResponse = completion.choices[0].text
 
-    return NextResponse.json({ response: aiResponse })
+    await supabase.from("chat_messages").insert({
+      conversation_id: convId,
+      role: "assistant",
+      content: aiResponse,
+    })
+
+    return NextResponse.json({ response: aiResponse, conversationId: convId })
   } catch (error: any) {
     console.error("Error processing request:", error)
 

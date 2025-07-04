@@ -11,13 +11,57 @@ export default function PricingPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        
+        <div className="container flex h-14 items-center">
+          <div className="mr-4 flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <Clock className="h-6 w-6" />
+              <span className="font-bold">AdTrack</span>
+            </Link>
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              <Link href="/features" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Features
+              </Link>
+              <Link href="/pricing" className="transition-colors hover:text-foreground/80 text-foreground">
+                Pricing
+              </Link>
+              <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                About
+              </Link>
+            </nav>
+          </div>
+          <div className="ml-auto flex items-center space-x-4">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">
+                Login
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm">Get Started</Button>
+            </Link>
+          </div>
+        </div>
       </header>
 
       <main className="flex-1">
         {/* Hero Section */}
-        <sect<br>ssNamd:px-6">
-            <Tabs defaultValue="monthly" className="w-full max-w-4iv className="flex justify-center mb-8">
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">Simple, Transparent Pricing</h1>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl">
+                  Choose the plan that's right for your agency. All plans include a 14-day free trial.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="w-full py-12 md:py-24 lg:py-32">
+          <div className="container px-4 md:px-6">
+            <Tabs defaultValue="monthly" className="w-full max-w-4xl mx-auto">
+              <div className="flex justify-center mb-8">
                 <TabsList>
                   <TabsTrigger value="monthly">Monthly Billing</TabsTrigger>
                   <TabsTrigger value="annual">Annual Billing (Save 20%)</TabsTrigger>
@@ -32,7 +76,7 @@ export default function PricingPage() {
                       <CardTitle>Starter</CardTitle>
                       <CardDescription>Perfect for small agencies and freelancers</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">£9</span>
+                        <span className="text-4xl font-bold">$29</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user</p>
@@ -89,7 +133,7 @@ export default function PricingPage() {
                       <CardTitle>Professional</CardTitle>
                       <CardDescription>Ideal for growing agencies</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">£19</span>
+                        <span className="text-4xl font-bold">$49</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user</p>
@@ -141,7 +185,7 @@ export default function PricingPage() {
                       <CardTitle>Enterprise</CardTitle>
                       <CardDescription>For established agencies with advanced needs</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">£39</span>
+                        <span className="text-4xl font-bold">$79</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user</p>

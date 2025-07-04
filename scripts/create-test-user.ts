@@ -5,6 +5,8 @@ async function createTestUser() {
 
   const supabaseUrl = process.env.SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const email = process.env.TEST_USER_EMAIL || "test@example.com"
+  const password = process.env.TEST_USER_PASSWORD || "password123"
 
   if (!supabaseUrl || !supabaseKey) {
     console.error("Missing Supabase URL or service role key in environment variables")
@@ -18,7 +20,7 @@ async function createTestUser() {
     const { data: existingUsers, error: searchError } = await supabase
       .from("auth.users")
       .select("*")
-      .eq("email", "test@example.com")
+      .eq("email", email)
       .limit(1)
 
     if (searchError) {
@@ -33,8 +35,8 @@ async function createTestUser() {
 
     // Create a new user
     const { data, error } = await supabase.auth.admin.createUser({
-      email: "test@example.com",
-      password: "password123",
+      email,
+      password,
       email_confirm: true,
       user_metadata: {
         full_name: "Test User",
@@ -47,8 +49,8 @@ async function createTestUser() {
     }
 
     console.log("Test user created successfully:", data.user.id)
-    console.log("Email: test@example.com")
-    console.log("Password: password123")
+    console.log(`Email: ${email}`)
+    console.log(`Password: ${password}`)
   } catch (err) {
     console.error("Unexpected error:", err)
   }
