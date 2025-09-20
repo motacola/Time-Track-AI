@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 declare global {
   interface Window {
     webkitSpeechRecognition: any
+    SpeechRecognition: any
   }
 }
 
@@ -23,45 +24,103 @@ export function NLTimesheetEntry() {
   const [isListening, setIsListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [parsedData, setParsedData] = useState<any>(null)
+  const [isSpeechSupported, setIsSpeechSupported] = useState(true)
+  const [interimTranscript, setInterimTranscript] = useState("")
 
   const router = useRouter()
   const supabase = createClient()
+  const recognitionRef = useRef<any>(null)
 
-  const handleVoiceInput = () => {
-    if (!("webkitSpeechRecognition" in window)) {
-      setError("Voice input is not supported in your browser")
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+
+    if (!SpeechRecognition) {
+      setIsSpeechSupported(false)
+      return
+    }
+
+    const recognition = new SpeechRecognition()
+    recognition.continuous = false
+    recognition.interimResults = true
+    recognition.lang = "en-GB"
+
+    recognition.onstart = () => {
+      setIsListening(true)
+      setError(null)
+    }
+
+    recognition.onresult = (event: any) => {
+      let finalTranscript = ""
+      let interim = ""
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcriptSegment = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalTranscript += transcriptSegment
+        } else {
+          interim += transcriptSegment
+        }
+      }
+
+      if (finalTranscript) {
+        setInput((prev) => {
+          const trimmedPrev = prev.trim()
+          const combined = trimmedPrev ? `${trimmedPrev} ${finalTranscript.trim()}` : finalTranscript.trim()
+          return combined
+        })
+        setParsedData(null)
+      }
+
+      setInterimTranscript(interim)
+    }
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event)
+      setError("We couldn’t capture that audio. Please try again.")
+      setIsListening(false)
+      setInterimTranscript("")
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+      setInterimTranscript("")
+    }
+
+    recognitionRef.current = recognition
+
+    return () => {
+      recognition.onresult = null
+      recognition.onerror = null
+      recognition.onend = null
+      recognitionRef.current = null
+      recognition.stop()
+    }
+  }, [])
+
+  const toggleVoiceInput = () => {
+    if (!isSpeechSupported || !recognitionRef.current) {
+      setError("Voice input is not available in this browser. Please type your entry instead.")
+      return
+    }
+
+    const recognition = recognitionRef.current
+
+    if (isListening) {
+      recognition.stop()
       return
     }
 
     try {
-      setIsListening(true)
-
-      // @ts-ignore - WebkitSpeechRecognition is not in the types
-      const recognition = new window.webkitSpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = false
-      recognition.lang = "en-US"
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript
-        setInput(transcript)
-        setIsListening(false)
-      }
-
-      recognition.onerror = () => {
-        setIsListening(false)
-        setError("Error recognizing speech. Please try again.")
-      }
-
-      recognition.onend = () => {
-        setIsListening(false)
-      }
-
+      setError(null)
       recognition.start()
     } catch (err) {
-      setIsListening(false)
-      setError("Error starting voice recognition")
       console.error("Voice recognition error:", err)
+      setError("We couldn’t access your microphone. Please check permissions and try again.")
+      setIsListening(false)
     }
   }
 
@@ -154,6 +213,15 @@ export function NLTimesheetEntry() {
           </Alert>
         )}
 
+        {!isSpeechSupported && (
+          <Alert className="mb-4">
+            <AlertDescription>
+              Voice capture requires a Chromium-based browser such as Chrome or Edge. You can still type your entry and
+              process it with AI below.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {!parsedData ? (
           <div className="space-y-4">
             <div className="space-y-2">
@@ -171,9 +239,13 @@ export function NLTimesheetEntry() {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={handleVoiceInput}
-                  disabled={isProcessing || isListening}
-                  className={isListening ? "bg-red-100 text-red-500 border-red-200" : ""}
+                  onClick={toggleVoiceInput}
+                  disabled={isProcessing || !isSpeechSupported}
+                  className={
+                    isListening
+                      ? "bg-blue-50 text-blue-600 border-blue-200 animate-pulse"
+                      : "hover:bg-blue-50 hover:text-blue-600"
+                  }
                 >
                   <Mic className="h-4 w-4" />
                 </Button>
@@ -181,6 +253,14 @@ export function NLTimesheetEntry() {
               <p className="text-xs text-muted-foreground mt-1">
                 Try phrases like &quot;2 hours on Acme project yesterday&quot; or &quot;4.5 hours on website design for TechCorp today&quot;
               </p>
+              {isListening && (
+                <p className="text-xs text-blue-600">Listening… speak naturally and we’ll transcribe automatically.</p>
+              )}
+              {interimTranscript && (
+                <p className="rounded-md bg-blue-50 p-3 text-sm text-blue-700">
+                  <span className="font-medium">Live transcript:</span> {interimTranscript}
+                </p>
+              )}
             </div>
 
             <Button onClick={processInput} disabled={!input.trim() || isProcessing || isListening} className="w-full">
