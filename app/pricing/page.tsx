@@ -44,7 +44,7 @@ export default function PricingPage() {
                       <CardTitle>Starter</CardTitle>
                       <CardDescription>Perfect for small agencies and freelancers</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">$29</span>
+                        <span className="text-4xl font-bold">£9</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user</p>
@@ -101,7 +101,7 @@ export default function PricingPage() {
                       <CardTitle>Professional</CardTitle>
                       <CardDescription>Ideal for growing agencies</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">$49</span>
+                        <span className="text-4xl font-bold">£19</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user</p>
@@ -153,7 +153,7 @@ export default function PricingPage() {
                       <CardTitle>Enterprise</CardTitle>
                       <CardDescription>For established agencies with advanced needs</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">$79</span>
+                        <span className="text-4xl font-bold">£39</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user</p>
@@ -209,12 +209,12 @@ export default function PricingPage() {
                       <CardTitle>Starter</CardTitle>
                       <CardDescription>Perfect for small agencies and freelancers</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">$23</span>
+                        <span className="text-4xl font-bold">£7.20</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user, billed annually</p>
                       <Badge variant="outline" className="mt-2 bg-green-50 text-green-700 border-green-200">
-                        Save $72 per year
+                        Save £22 per year
                       </Badge>
                     </CardHeader>
                     <CardContent className="flex-1">
@@ -269,12 +269,12 @@ export default function PricingPage() {
                       <CardTitle>Professional</CardTitle>
                       <CardDescription>Ideal for growing agencies</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">$39</span>
+                        <span className="text-4xl font-bold">£15.20</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user, billed annually</p>
                       <Badge variant="outline" className="mt-2 bg-green-50 text-green-700 border-green-200">
-                        Save $120 per year
+                        Save £46 per year
                       </Badge>
                     </CardHeader>
                     <CardContent className="flex-1">
@@ -324,12 +324,12 @@ export default function PricingPage() {
                       <CardTitle>Enterprise</CardTitle>
                       <CardDescription>For established agencies with advanced needs</CardDescription>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold">$63</span>
+                        <span className="text-4xl font-bold">£31.20</span>
                         <span className="text-muted-foreground ml-1">/ month</span>
                       </div>
                       <p className="text-sm text-muted-foreground">per user, billed annually</p>
                       <Badge variant="outline" className="mt-2 bg-green-50 text-green-700 border-green-200">
-                        Save $192 per year
+                        Save £94 per year
                       </Badge>
                     </CardHeader>
                     <CardContent className="flex-1">
