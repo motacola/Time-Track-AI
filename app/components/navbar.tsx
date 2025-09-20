@@ -29,85 +29,68 @@ export function Navbar() {
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Clock className="h-6 w-6" />
-            <span className="font-bold">AdTrack</span>
+            <span className="font-bold">TimeTrack AI</span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link
-              href="/features"
-              className={`transition-colors hover:text-foreground/80 ${
-                pathname === "/features" ? "text-foreground" : "text-foreground/60"
-              }`}
-            >
-              Features
-            </Link>
-            <Link
-              href="/pricing"
-              className={`transition-colors hover:text-foreground/80 ${
-                pathname === "/pricing" ? "text-foreground" : "text-foreground/60"
-              }`}
-            >
-              Pricing
-            </Link>
-            <Link
-              href="/about"
-              className={`transition-colors hover:text-foreground/80 ${
-                pathname === "/about" ? "text-foreground" : "text-foreground/60"
-              }`}
-            >
-              About
-            </Link>
-            {isDashboardPath && (
-              <>
-                <Link
-                  href="/dashboard"
-                  className={`transition-colors hover:text-foreground/80 ${
-                    pathname === "/dashboard" ? "text-foreground" : "text-foreground/60"
-                  }`}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/timesheet"
-                  className={`transition-colors hover:text-foreground/80 ${
-                    pathname.startsWith("/timesheet") ? "text-foreground" : "text-foreground/60"
-                  }`}
-                >
-                  Timesheets
-                </Link>
-                <Link
-                  href="/projects"
-                  className={`transition-colors hover:text-foreground/80 ${
-                    pathname.startsWith("/projects") ? "text-foreground" : "text-foreground/60"
-                  }`}
-                >
-                  Projects
-                </Link>
-                <Link
-                  href="/clients"
-                  className={`transition-colors hover:text-foreground/80 ${
-                    pathname.startsWith("/clients") ? "text-foreground" : "text-foreground/60"
-                  }`}
-                >
-                  Clients
-                </Link>
-              </>
-            )}
-          </nav>
+          {!isDashboardPath && (
+            <nav className="hidden items-center space-x-6 text-sm font-medium md:flex">
+              <Link
+                href="/features"
+                className={`transition-colors hover:text-foreground/80 ${
+                  pathname === "/features" ? "text-foreground" : "text-foreground/60"
+                }`}
+              >
+                Features
+              </Link>
+              <Link
+                href="/pricing"
+                className={`transition-colors hover:text-foreground/80 ${
+                  pathname === "/pricing" ? "text-foreground" : "text-foreground/60"
+                }`}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/about"
+                className={`transition-colors hover:text-foreground/80 ${
+                  pathname === "/about" ? "text-foreground" : "text-foreground/60"
+                }`}
+              >
+                About
+              </Link>
+            </nav>
+          )}
         </div>
-        <div className="ml-auto flex items-center space-x-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
-              Dashboard
-            </Button>
-          </Link>
-          <button className="md:hidden" onClick={toggleMenu}>
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+        <div className="ml-auto flex items-center space-x-3">
+          {isDashboardPath ? (
+            <Link href="/dashboard">
+              <Button variant="ghost" size="sm">
+                Dashboard
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button size="sm" variant="outline">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
+          {!isDashboardPath && (
+            <button className="md:hidden" onClick={toggleMenu}>
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          )}
         </div>
       </div>
 
       {/* Mobile menu */}
-      {isMenuOpen && (
+      {isMenuOpen && !isDashboardPath && (
         <div className="md:hidden">
           <div className="space-y-1 px-4 py-3">
             <Link
@@ -131,38 +114,20 @@ export function Navbar() {
             >
               About
             </Link>
-            {isDashboardPath && (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="block py-2 text-base font-medium text-foreground/60 hover:text-foreground"
-                  onClick={toggleMenu}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/timesheet"
-                  className="block py-2 text-base font-medium text-foreground/60 hover:text-foreground"
-                  onClick={toggleMenu}
-                >
-                  Timesheets
-                </Link>
-                <Link
-                  href="/projects"
-                  className="block py-2 text-base font-medium text-foreground/60 hover:text-foreground"
-                  onClick={toggleMenu}
-                >
-                  Projects
-                </Link>
-                <Link
-                  href="/clients"
-                  className="block py-2 text-base font-medium text-foreground/60 hover:text-foreground"
-                  onClick={toggleMenu}
-                >
-                  Clients
-                </Link>
-              </>
-            )}
+            <Link
+              href="/login"
+              className="block py-2 text-base font-medium text-primary hover:text-primary/80"
+              onClick={toggleMenu}
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="block py-2 text-base font-medium text-foreground/60 hover:text-foreground"
+              onClick={toggleMenu}
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       )}

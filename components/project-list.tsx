@@ -6,6 +6,7 @@ import { useState, useEffect, type FormEvent } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Clock, Send, Loader2, XIcon } from "lucide-react" // Added Send, Loader2
 import {
   Dialog,
@@ -20,7 +21,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox" // For billable
-import { LoadingFallback } from "@/components/ui/loading-fallback"
 import { EmptyState } from "@/components/ui/empty-state"
 import { DatabaseError } from "@/components/ui/database-error"
 import { logger } from "@/lib/logger"
@@ -74,6 +74,27 @@ const mockProjects = [
   },
 ]
 
+export function ProjectListSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index} className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-1/2" />
+            <Skeleton className="h-5 w-16" />
+          </div>
+          <div className="mt-4 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+          <Skeleton className="mt-6 h-10 w-full" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function ProjectList() {
   const [projects, setProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -112,7 +133,7 @@ export default function ProjectList() {
   // }
 
   if (loading) {
-    return <LoadingFallback title="Loading projects" description="Please wait while we fetch your projects" />
+    return <ProjectListSkeleton />
   }
 
   if (error) {

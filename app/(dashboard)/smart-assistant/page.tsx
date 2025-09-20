@@ -2,7 +2,6 @@ import { Download } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SmartAssistantChat } from "@/components/smart-assistant-chat"
@@ -10,7 +9,7 @@ import { SmartAssistantSettings } from "@/components/smart-assistant-settings"
 
 export default function SmartAssistantPage() {
   return (
-    <DashboardShell>
+    <div className="flex flex-col gap-6">
       <DashboardHeader heading="Smart Assistant" text="Your AI-powered assistant for timesheet management">
         <Button variant="outline" className="gap-2">
           <Download className="h-4 w-4" />
@@ -127,6 +126,6 @@ export default function SmartAssistantPage() {
           <SmartAssistantSettings />
         </TabsContent>
       </Tabs>
-    </DashboardShell>
+    </div>
   )
 }

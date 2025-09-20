@@ -6,7 +6,7 @@ import "./globals.css"
 export const metadata = {
   title: "TimeTrack AI - Effortless Time Tracking",
   description: "AI-powered timesheet tool for agencies and professionals",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -18,8 +18,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <NavbarWrapper />
-          {children}
+          <div className="flex min-h-screen flex-col">
+            <NavbarWrapper />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
         </ThemeProvider>
       </body>
     </html>

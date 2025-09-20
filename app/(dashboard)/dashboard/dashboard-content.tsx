@@ -27,7 +27,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
 import { RecentTimesheets } from "@/components/recent-timesheets"
 import { TeamActivity } from "@/components/team-activity"
 import { UpcomingDeadlines } from "@/components/upcoming-deadlines"
@@ -106,8 +105,8 @@ export function DashboardContent({
   }
 
   return (
-    <DashboardShell>
-      <div className="sticky top-0 z-30 flex items-center justify-between bg-background pb-4 pt-1">
+    <div className="flex flex-col gap-8">
+      <div className="relative">
         <DashboardHeader heading="Dashboard" text="Overview of your agency&apos;s activity">
           <div className="flex items-center gap-2">
             <div className="relative hidden md:block">
@@ -149,13 +148,13 @@ export function DashboardContent({
             </Button>
           </div>
         </DashboardHeader>
-      </div>
 
-      {showVoicePanel && (
-        <div className="absolute right-4 top-16 z-50 w-80" ref={voicePanelRef}>
-          <VoiceCommandPanel onClose={() => setShowVoicePanel(false)} onCommand={handleVoiceCommand} />
-        </div>
-      )}
+        {showVoicePanel && (
+          <div className="absolute right-0 top-full z-50 mt-3 w-80" ref={voicePanelRef}>
+            <VoiceCommandPanel onClose={() => setShowVoicePanel(false)} onCommand={handleVoiceCommand} />
+          </div>
+        )}
+      </div>
 
       {error && (
         <Alert variant="destructive" className="mb-6">
@@ -516,6 +515,6 @@ export function DashboardContent({
           <AiInsights />
         </TabsContent>
       </Tabs>
-    </DashboardShell>
+    </div>
   )
 }

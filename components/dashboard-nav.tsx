@@ -23,11 +23,11 @@ export function DashboardNav() {
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full min-h-screen w-full flex-col border-r bg-muted/40">
-      <div className="flex h-14 items-center border-b px-4">
+    <div className="flex h-full min-h-[calc(100vh-3.5rem)] w-full flex-col border-r bg-muted/40">
+      <div className="flex h-16 items-center border-b px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <Clock className="h-6 w-6" />
-          <span>AdTrack</span>
+          <span>TimeTrack AI</span>
         </Link>
       </div>
       <div className="flex-1 overflow-auto py-2">

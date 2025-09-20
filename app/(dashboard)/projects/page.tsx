@@ -1,19 +1,25 @@
 import { Suspense } from "react"
-import { LoadingFallback } from "@/components/ui/loading-fallback"
-import ProjectList from "@/components/project-list"
+import { Plus } from "lucide-react"
+
+import ProjectList, { ProjectListSkeleton } from "@/components/project-list"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { Button } from "@/components/ui/button"
 
 export default async function ProjectsPage() {
   return (
-    <div className="container py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Projects</h1>
-      </div>
+    <div className="flex flex-col gap-6">
+      <DashboardHeader heading="Projects" text="Manage client engagements and keep delivery on track.">
+        <Button size="sm" className="gap-2">
+          <Plus className="h-4 w-4" />
+          New Project
+        </Button>
+      </DashboardHeader>
 
-      <Suspense
-        fallback={<LoadingFallback title="Loading projects" description="Please wait while we fetch your projects" />}
-      >
-        <ProjectList />
-      </Suspense>
+      <section className="space-y-6">
+        <Suspense fallback={<ProjectListSkeleton />}>
+          <ProjectList />
+        </Suspense>
+      </section>
     </div>
   )
 }

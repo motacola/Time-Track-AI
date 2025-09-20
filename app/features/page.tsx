@@ -8,39 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 export default function FeaturesPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <Clock className="h-6 w-6" />
-              <span className="font-bold">AdTrack</span>
-            </Link>
-            <nav className="flex items-center space-x-6 text-sm font-medium">
-              <Link href="/features" className="transition-colors hover:text-foreground/80 text-foreground">
-                Features
-              </Link>
-              <Link href="/pricing" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                Pricing
-              </Link>
-              <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                About
-              </Link>
-            </nav>
-          </div>
-          <div className="ml-auto flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Login
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="flex-1">
+      <div className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
           <div className="container px-4 md:px-6">
@@ -406,7 +374,7 @@ export default function FeaturesPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
 
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
