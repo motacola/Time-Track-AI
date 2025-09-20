@@ -73,6 +73,7 @@ export function NLTimesheetEntry() {
           return combined
         })
         setParsedData(null)
+        recognition.stop()
       }
 
       setInterimTranscript(interim)
@@ -101,7 +102,23 @@ export function NLTimesheetEntry() {
     }
   }, [])
 
-  const toggleVoiceInput = () => {
+  const requestMicrophonePermission = async () => {
+    if (typeof window === "undefined" || !navigator?.mediaDevices?.getUserMedia) {
+      return false
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach((track) => track.stop())
+      return true
+    } catch (err) {
+      console.error("Microphone permission denied:", err)
+      setError("Microphone access was denied. Please enable it in your browser settings and try again.")
+      return false
+    }
+  }
+
+  const toggleVoiceInput = async () => {
     if (!isSpeechSupported || !recognitionRef.current) {
       setError("Voice input is not available in this browser. Please type your entry instead.")
       return
@@ -116,6 +133,10 @@ export function NLTimesheetEntry() {
 
     try {
       setError(null)
+      const hasPermission = await requestMicrophonePermission()
+      if (!hasPermission) {
+        return
+      }
       recognition.start()
     } catch (err) {
       console.error("Voice recognition error:", err)
