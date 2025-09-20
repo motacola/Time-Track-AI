@@ -220,9 +220,9 @@ export default function IntegrationsPage() {
             </div>
 
             <div className="mt-16 text-center">
-              <h2 className="text-2xl font-bold mb-4">Don't see your tool?</h2>
+              <h2 className="text-2xl font-bold mb-4">Don&apos;t see your tool?</h2>
               <p className="text-muted-foreground mb-6 max-w-[600px] mx-auto">
-                We're constantly adding new integrations. Contact us to request an integration with your favourite tool
+                We&apos;re constantly adding new integrations. Contact us to request an integration with your favourite tool
                 or explore our API.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -259,7 +259,7 @@ export default function IntegrationsPage() {
                 <span className="font-bold text-xl">AdTrack</span>
               </div>
               <p className="text-muted-foreground mb-4">
-                AI-powered time tracking that's simple enough for your first day at work.
+                AI-powered time tracking that&apos;s simple enough for your first day at work.
               </p>
             </div>
             <div>

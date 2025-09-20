@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { ErrorBoundary } from "react-error-boundary"
 import { Navbar } from "./navbar"
 
@@ -9,23 +10,23 @@ function FallbackNavbar() {
       <div className="container px-4 md:px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <a href="/" className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
               <span className="font-bold text-xl">TimeTrack AI</span>
-            </a>
+            </Link>
           </div>
           <div className="flex items-center space-x-4">
-            <a
+            <Link
               href="/login"
               className="hidden md:inline-flex text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
             >
               Log in
-            </a>
-            <a
+            </Link>
+            <Link
               href="/signup"
               className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
             >
               Start for free
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -107,7 +107,7 @@ export function TimesheetList() {
     <Card>
       <CardHeader>
         <CardTitle>Recent Timesheets</CardTitle>
-        <CardDescription>View and manage your team's time entries</CardDescription>
+        <CardDescription>View and manage your team&apos;s time entries</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>

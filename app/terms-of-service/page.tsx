@@ -14,7 +14,8 @@ export default function TermsOfServicePage() {
 
           <div className="prose dark:prose-invert max-w-none">
             <p>
-              Please read these Terms of Service ("Terms") carefully before using the TimeTrack AI website and service.
+              Please read these Terms of Service (&quot;Terms&quot;) carefully before using the TimeTrack AI website and
+              service.
             </p>
 
             <h2>1. Agreement to Terms</h2>
@@ -63,7 +64,7 @@ export default function TermsOfServicePage() {
               <li>In any way that violates any applicable law or regulation</li>
               <li>To transmit any material that is defamatory, obscene, or offensive</li>
               <li>To impersonate or attempt to impersonate the company, an employee, or another user</li>
-              <li>To engage in any conduct that restricts or inhibits anyone's use of the service</li>
+              <li>To engage in any conduct that restricts or inhibits anyone&apos;s use of the service</li>
               <li>To attempt to gain unauthorized access to the service or related systems</li>
             </ul>
 
@@ -83,7 +84,7 @@ export default function TermsOfServicePage() {
             <h2>10. Changes to Terms</h2>
             <p>
               We reserve the right to modify or replace these Terms at any time. If a revision is material, we will
-              provide at least 30 days' notice prior to any new terms taking effect.
+              provide at least 30 days&apos; notice prior to any new terms taking effect.
             </p>
 
             <h2>11. Governing Law</h2>

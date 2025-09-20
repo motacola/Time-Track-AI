@@ -16,7 +16,7 @@ export function ServerError({ onRetry, errorCode }: ServerErrorProps) {
       </div>
       <h3 className="mb-2 text-lg font-medium">Server Error</h3>
       <p className="mb-4 max-w-md text-sm text-gray-500 dark:text-gray-400">
-        We're experiencing some technical difficulties. Our team has been notified and is working on a fix.
+        We&apos;re experiencing some technical difficulties. Our team has been notified and is working on a fix.
       </p>
 
       {errorCode && <p className="mb-4 text-xs text-gray-400 dark:text-gray-500">Error Code: {errorCode}</p>}

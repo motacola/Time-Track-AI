@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation" // Added for navigation
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card" // Added CardFooter
 import { Button } from "@/components/ui/button" // Added Button
@@ -19,7 +19,7 @@ export function TimesheetList() {
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
 
   const handleEdit = (entryId: string) => {
@@ -69,7 +69,7 @@ export function TimesheetList() {
     }
 
     fetchTimesheets()
-  }, [])
+  }, [supabase])
 
   useEffect(() => {
     if (searchQuery.trim() === "") {

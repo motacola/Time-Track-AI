@@ -50,7 +50,7 @@ export default function DashboardError({
         <div className="w-full max-w-md rounded-lg border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900/50 dark:bg-yellow-900/10">
           <h2 className="mb-2 text-xl font-semibold text-yellow-800 dark:text-yellow-400">Redirecting...</h2>
           <p className="mb-4 text-yellow-700 dark:text-yellow-300">
-            You're being redirected to the login page. If you're not redirected automatically, please click the button
+            You&apos;re being redirected to the login page. If you&apos;re not redirected automatically, please click the button
             below.
           </p>
           <Button onClick={handleLogout} className="flex items-center gap-2">

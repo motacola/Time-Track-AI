@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Clock, Github, ArrowRight } from "lucide-react"
 
@@ -238,10 +239,10 @@ export default function RegisterPage() {
                 </Button>
               </div>
             </div>
-            <img
+            <Image
               src="/placeholder.svg?height=400&width=400"
-              width="400"
-              height="400"
+              width={400}
+              height={400}
               alt="AdTrack Dashboard Preview"
               className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
             />

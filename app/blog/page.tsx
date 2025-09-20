@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Calendar, User } from "lucide-react"
 
@@ -40,7 +41,7 @@ export default function BlogPage() {
     {
       title: "Voice Commands: The Future of Time Tracking",
       excerpt:
-        "Voice-powered time tracking is changing the game for busy professionals. Here's how it works and why you should try it.",
+        "Voice-powered time tracking is changing the game for busy professionals. Here&apos;s how it works and why you should try it.",
       date: "1 April 2025",
       author: "David Rodriguez",
       category: "Technology",
@@ -50,7 +51,7 @@ export default function BlogPage() {
     {
       title: "How to Create a Culture of Accurate Time Tracking",
       excerpt:
-        "Building a culture where time tracking is valued and done accurately can transform your agency's profitability.",
+        "Building a culture where time tracking is valued and done accurately can transform your agency&apos;s profitability.",
       date: "28 March 2025",
       author: "Lisa Thompson",
       category: "Culture",
@@ -139,9 +140,11 @@ export default function BlogPage() {
               {blogPosts.map((post, index) => (
                 <Card key={index} className="overflow-hidden">
                   <div className="aspect-video w-full overflow-hidden">
-                    <img
+                    <Image
                       src={post.image || "/placeholder.svg"}
                       alt={post.title}
+                      width={400}
+                      height={200}
                       className="h-full w-full object-cover transition-all hover:scale-105"
                     />
                   </div>
@@ -225,7 +228,7 @@ export default function BlogPage() {
                 <span className="font-bold text-xl">AdTrack</span>
               </div>
               <p className="text-muted-foreground mb-4">
-                AI-powered time tracking that's simple enough for your first day at work.
+                AI-powered time tracking that&apos;s simple enough for your first day at work.
               </p>
             </div>
             <div>

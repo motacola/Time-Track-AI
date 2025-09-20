@@ -17,7 +17,7 @@ export default function GuidesPage() {
     },
     {
       title: "Voice Commands for Time Tracking",
-      description: "Learn how to use voice commands to track time efficiently with AdTrack's AI assistant.",
+      description: "Learn how to use voice commands to track time efficiently with AdTrack&apos;s AI assistant.",
       type: "Video",
       icon: <Video className="h-8 w-8 text-primary" />,
       readTime: "5 min watch",
@@ -33,7 +33,7 @@ export default function GuidesPage() {
     },
     {
       title: "Creating Custom Reports",
-      description: "Learn how to generate insightful reports to understand your team's productivity.",
+      description: "Learn how to generate insightful reports to understand your team&apos;s productivity.",
       type: "Article",
       icon: <FileText className="h-8 w-8 text-primary" />,
       readTime: "12 min read",
@@ -159,7 +159,7 @@ export default function GuidesPage() {
             <div className="mt-16 text-center">
               <h2 className="text-2xl font-bold mb-4">Need more help?</h2>
               <p className="text-muted-foreground mb-6 max-w-[600px] mx-auto">
-                Can't find what you're looking for? Our support team is here to help.
+                Can&apos;t find what you&apos;re looking for? Our support team is here to help.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="gap-1">
@@ -195,7 +195,7 @@ export default function GuidesPage() {
                 <span className="font-bold text-xl">AdTrack</span>
               </div>
               <p className="text-muted-foreground mb-4">
-                AI-powered time tracking that's simple enough for your first day at work.
+                AI-powered time tracking that&apos;s simple enough for your first day at work.
               </p>
             </div>
             <div>

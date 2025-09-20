@@ -25,7 +25,7 @@ export default function ErrorBoundary({
     <div className="flex h-[50vh] flex-col items-center justify-center gap-2">
       <div className="text-center">
         <h2 className="text-2xl font-bold tracking-tight">Something went wrong!</h2>
-        <p className="mt-2 text-muted-foreground">We've logged the error and our team will look into it.</p>
+        <p className="mt-2 text-muted-foreground">We&apos;ve logged the error and our team will look into it.</p>
         {error.digest && <p className="mt-2 text-sm text-muted-foreground">Error ID: {error.digest}</p>}
       </div>
       <div className="mt-6">

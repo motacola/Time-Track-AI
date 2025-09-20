@@ -42,7 +42,7 @@ export default function HelpCentrePage() {
     },
     {
       title: "Reporting",
-      description: "Generate insightful reports to understand your team's productivity.",
+      description: "Generate insightful reports to understand your team&apos;s productivity.",
       icon: <Video className="h-8 w-8 text-primary" />,
       articles: ["Creating custom reports", "Exporting data", "Scheduled reports", "Understanding AI insights"],
     },
@@ -160,7 +160,7 @@ export default function HelpCentrePage() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center text-center space-y-4 mb-8">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter">Can't find what you're looking for?</h2>
+                <h2 className="text-3xl font-bold tracking-tighter">Can&apos;t find what you&apos;re looking for?</h2>
                 <p className="max-w-[700px] text-muted-foreground md:text-xl">
                   Our support team is here to help you with any questions you may have.
                 </p>
@@ -200,7 +200,7 @@ export default function HelpCentrePage() {
                 <span className="font-bold text-xl">AdTrack</span>
               </div>
               <p className="text-muted-foreground mb-4">
-                AI-powered time tracking that's simple enough for your first day at work.
+                AI-powered time tracking that&apos;s simple enough for your first day at work.
               </p>
             </div>
             <div>

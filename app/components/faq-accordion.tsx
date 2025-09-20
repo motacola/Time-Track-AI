@@ -14,9 +14,9 @@ export function FaqAccordion() {
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="item-2">
-        <AccordionTrigger>Can I edit entries after they've been processed?</AccordionTrigger>
+        <AccordionTrigger>Can I edit entries after they&apos;ve been processed?</AccordionTrigger>
         <AccordionContent>
-          Yes, you can edit any entry after it's been processed. Our system provides a simple interface to adjust time
+          Yes, you can edit any entry after it&apos;s been processed. Our system provides a simple interface to adjust time
           allocations, project assignments, or descriptions if needed.
         </AccordionContent>
       </AccordionItem>

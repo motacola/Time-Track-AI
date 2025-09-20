@@ -65,7 +65,7 @@ export default function SmartAssistantPage() {
                     <ul className="mt-2 space-y-2 text-sm">
                       <li className="flex items-start">
                         <code className="mr-2 rounded bg-muted px-1 py-0.5 font-mono text-sm">show projects</code>
-                        <span className="text-muted-foreground">List all projects you're assigned to</span>
+                        <span className="text-muted-foreground">List all projects you&apos;re assigned to</span>
                       </li>
                       <li className="flex items-start">
                         <code className="mr-2 rounded bg-muted px-1 py-0.5 font-mono text-sm">project status</code>

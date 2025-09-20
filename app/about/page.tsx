@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Clock, MapPin, Mail, Phone, Github, Linkedin, Twitter } from "lucide-react"
 
@@ -47,7 +48,7 @@ export default function AboutPage() {
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">About AdTrack</h1>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  We're on a mission to help agencies work smarter, not harder.
+                  We&apos;re on a mission to help agencies work smarter, not harder.
                 </p>
               </div>
             </div>
@@ -78,15 +79,15 @@ export default function AboutPage() {
                   </p>
                   <p>
                     Today, AdTrack is used by hundreds of agencies worldwide, from boutique studios to global networks.
-                    We're proud to help creative teams focus on what they do best—creating amazing work for their
+                    We&apos;re proud to help creative teams focus on what they do best—creating amazing work for their
                     clients—while we handle the time tracking and project management.
                   </p>
                 </div>
               </div>
-              <img
+              <Image
                 src="/placeholder.svg?height=550&width=550"
-                width="550"
-                height="550"
+                width={550}
+                height={550}
                 alt="The AdTrack team"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
@@ -197,7 +198,7 @@ export default function AboutPage() {
                   </div>
                   <h3 className="text-xl font-bold mb-2">Innovation</h3>
                   <p className="text-muted-foreground">
-                    We're constantly pushing the boundaries of what's possible with timesheet and project management
+                    We&apos;re constantly pushing the boundaries of what&apos;s possible with timesheet and project management
                     software.
                   </p>
                 </CardContent>
@@ -271,10 +272,10 @@ export default function AboutPage() {
             </div>
 
             <div className="flex flex-col items-center text-center max-w-md mx-auto">
-              <img
+              <Image
                 src="/placeholder.svg?height=300&width=300"
-                width="300"
-                height="300"
+                width={300}
+                height={300}
                 alt="Christopher Belgrave"
                 className="rounded-full object-cover mb-6"
               />
@@ -316,7 +317,7 @@ export default function AboutPage() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Get in Touch</h2>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                    Have questions about AdTrack? We'd love to hear from you.
+                    Have questions about AdTrack? We&apos;d love to hear from you.
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -375,7 +376,7 @@ export default function AboutPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Ready to Transform Your Agency's Workflow?
+                  Ready to Transform Your Agency&apos;s Workflow?
                 </h2>
                 <p className="max-w-[900px] text-primary-foreground/80 md:text-xl">
                   Join thousands of agencies that have streamlined their operations with AdTrack.

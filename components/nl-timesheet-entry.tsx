@@ -179,7 +179,7 @@ export function NLTimesheetEntry() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Try phrases like "2 hours on Acme project yesterday" or "4.5 hours on website design for TechCorp today"
+                Try phrases like &quot;2 hours on Acme project yesterday&quot; or &quot;4.5 hours on website design for TechCorp today&quot;
               </p>
             </div>
 

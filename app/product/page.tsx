@@ -204,7 +204,7 @@ export default function ProductPage() {
                 <span className="font-bold text-xl">AdTrack</span>
               </div>
               <p className="text-muted-foreground mb-4">
-                AI-powered time tracking that's simple enough for your first day at work.
+                AI-powered time tracking that&apos;s simple enough for your first day at work.
               </p>
             </div>
             <div>

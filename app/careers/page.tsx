@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, MapPin, DollarSign } from "lucide-react"
 
@@ -14,7 +15,7 @@ export default function CareersPage() {
       type: "Full-time",
       salary: "£70,000 - £90,000",
       description:
-        "We're looking for a Senior Frontend Developer to join our team and help build the next generation of our AI-powered time tracking platform.",
+        "We&apos;re looking for a Senior Frontend Developer to join our team and help build the next generation of our AI-powered time tracking platform.",
       slug: "senior-frontend-developer",
     },
     {
@@ -34,7 +35,7 @@ export default function CareersPage() {
       type: "Full-time",
       salary: "£60,000 - £75,000",
       description:
-        "We're seeking a talented Product Designer to create beautiful, intuitive interfaces that make time tracking a joy to use.",
+        "We&apos;re seeking a talented Product Designer to create beautiful, intuitive interfaces that make time tracking a joy to use.",
       slug: "product-designer",
     },
     {
@@ -262,14 +263,20 @@ export default function CareersPage() {
                     <div>
                       <h3 className="text-xl font-bold mb-1">Inclusive Culture</h3>
                       <p className="text-muted-foreground">
-                        We're building a diverse team where everyone feels welcome, valued, and heard.
+                        We&apos;re building a diverse team where everyone feels welcome, valued, and heard.
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
               <div>
-                <img src="/placeholder.svg?height=400&width=600" alt="AdTrack team" className="rounded-xl shadow-lg" />
+                <Image
+                  src="/placeholder.svg?height=400&width=600"
+                  alt="AdTrack team"
+                  width={600}
+                  height={400}
+                  className="rounded-xl shadow-lg"
+                />
               </div>
             </div>
           </div>
@@ -279,9 +286,9 @@ export default function CareersPage() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Don't see the right role?</h2>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Don&apos;t see the right role?</h2>
                 <p className="max-w-[700px] text-primary-foreground/80 md:text-xl">
-                  We're always looking for talented people to join our team. Send us your CV and we'll get in touch when
+                  We&apos;re always looking for talented people to join our team. Send us your CV and we&apos;ll get in touch when
                   a suitable position opens up.
                 </p>
               </div>
@@ -314,7 +321,7 @@ export default function CareersPage() {
                 <span className="font-bold text-xl">AdTrack</span>
               </div>
               <p className="text-muted-foreground mb-4">
-                AI-powered time tracking that's simple enough for your first day at work.
+                AI-powered time tracking that&apos;s simple enough for your first day at work.
               </p>
             </div>
             <div>

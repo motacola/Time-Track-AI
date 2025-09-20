@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Clock, PieChart, Briefcase, Zap, Brain, Bot, Sparkles, CheckCircle, ArrowRight } from "lucide-react"
 
@@ -74,7 +75,7 @@ export default function FeaturesPage() {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">Core Features</h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  Everything you need to manage your agency's time and projects efficiently
+                  Everything you need to manage your agency&apos;s time and projects efficiently
                 </p>
               </div>
             </div>
@@ -363,10 +364,10 @@ export default function FeaturesPage() {
                   </Link>
                 </div>
               </div>
-              <img
+              <Image
                 src="/placeholder.svg?height=550&width=550"
-                width="550"
-                height="550"
+                width={550}
+                height={550}
                 alt="Client Management Dashboard"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
               />
@@ -380,7 +381,7 @@ export default function FeaturesPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Ready to Transform Your Agency's Workflow?
+                  Ready to Transform Your Agency&apos;s Workflow?
                 </h2>
                 <p className="max-w-[900px] text-primary-foreground/80 md:text-xl">
                   Join thousands of agencies that have streamlined their operations with AdTrack.

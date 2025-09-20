@@ -17,7 +17,7 @@ export function HowItWorks() {
               </div>
               <h3 className="text-xl font-bold">Tell us what you did</h3>
               <p className="text-gray-500 dark:text-gray-400 text-center">
-                Type or speak what you worked on in plain language, just like you'd tell a colleague.
+                Type or speak what you worked on in plain language, just like you&apos;d tell a colleague.
               </p>
             </div>
 

@@ -108,7 +108,7 @@ export function DashboardContent({
   return (
     <DashboardShell>
       <div className="sticky top-0 z-30 flex items-center justify-between bg-background pb-4 pt-1">
-        <DashboardHeader heading="Dashboard" text="Overview of your agency's activity">
+        <DashboardHeader heading="Dashboard" text="Overview of your agency&apos;s activity">
           <div className="flex items-center gap-2">
             <div className="relative hidden md:block">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -392,7 +392,7 @@ export function DashboardContent({
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
                   <CardTitle>Recent Timesheets</CardTitle>
-                  <CardDescription>Your team's most recent time entries</CardDescription>
+                  <CardDescription>Your team&apos;s most recent time entries</CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" className="h-8">
@@ -490,7 +490,7 @@ export function DashboardContent({
           <Card>
             <CardHeader>
               <CardTitle>Analytics</CardTitle>
-              <CardDescription>Detailed analytics about your agency's performance</CardDescription>
+              <CardDescription>Detailed analytics about your agency&apos;s performance</CardDescription>
             </CardHeader>
             <CardContent className="h-[450px] flex items-center justify-center">
               <div className="text-center">

@@ -1,4 +1,6 @@
 import { AiInsights } from "@/components/ai-insights"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { DashboardShell } from "@/components/dashboard-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -9,13 +11,11 @@ export const metadata = {
 
 export default function AiInsightsPage() {
   return (
-    <div className="container mx-auto py-6 space-y-8">
-      <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">AI Insights</h1>
-        <p className="text-muted-foreground">
-          AI-powered analysis of your timesheet data to help you work more efficiently.
-        </p>
-      </div>
+    <DashboardShell>
+      <DashboardHeader
+        heading="AI Insights"
+        text="AI-powered analysis of your timesheet data to help you work more efficiently."
+      />
 
       <Tabs defaultValue="insights" className="space-y-4">
         <TabsList>
@@ -56,6 +56,6 @@ export default function AiInsightsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </DashboardShell>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -37,90 +37,8 @@ export function AiPredictions({ type = "timeline" }: AiPredictionsProps) {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<string>(type)
 
-  const fetchPredictions = async (predictionType: string) => {
-    try {
-      setIsLoading(true)
-      setError(null)
-
-      console.log(`Fetching predictions for type: ${predictionType}`)
-
-      // Add a small delay to simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500))
-
-      try {
-        const response = await fetch(`/api/predictions?type=${predictionType}`)
-
-        if (!response.ok) {
-          console.error("API response error:", response.status)
-          throw new Error(`Failed to fetch ${predictionType} predictions: ${response.statusText}`)
-        }
-
-        const data = await response.json()
-        console.log("Predictions data received:", data)
-
-        if (!data || !data.predictions) {
-          throw new Error("Invalid response format from predictions API")
-        }
-
-        setPredictions(data.predictions)
-      } catch (fetchError) {
-        console.error(`Error fetching ${predictionType} predictions:`, fetchError)
-
-        // Use fallback mock data if the API call fails
-        setPredictions({
-          topProjects: "Unable to predict top projects at this time.",
-          weeklyHours: "Weekly hour predictions unavailable.",
-          conflicts: "Scheduling conflict analysis unavailable.",
-          recommendations: "Try again later for personalized recommendations.",
-          projectData: getMockProjectData(),
-        })
-
-        setError(`Failed to load predictions. Using fallback data.`)
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchPredictions(activeTab)
-  }, [activeTab])
-
-  const handleRefresh = () => {
-    fetchPredictions(activeTab)
-  }
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value)
-  }
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case "increasing":
-        return <TrendingUp className="h-4 w-4 text-green-500" />
-      case "decreasing":
-        return <TrendingDown className="h-4 w-4 text-red-500" />
-      default:
-        return <Minus className="h-4 w-4 text-gray-500" />
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "good":
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case "warning":
-        return <AlertTriangle className="h-4 w-4 text-amber-500" />
-      case "critical":
-        return <XCircle className="h-4 w-4 text-red-500" />
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />
-    }
-  }
-
-  // Generate mock project data if none is available
-  const getMockProjectData = () => {
-    return [
+  const getMockProjectData = useCallback(
+    () => [
       {
         id: "1",
         name: "Website Redesign",
@@ -181,7 +99,89 @@ export function AiPredictions({ type = "timeline" }: AiPredictionsProps) {
         dueDate: "2025-06-05",
         completion: 50,
       },
-    ]
+    ],
+    [],
+  )
+
+  const fetchPredictions = useCallback(async (predictionType: string) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      console.log(`Fetching predictions for type: ${predictionType}`)
+
+      // Add a small delay to simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      try {
+        const response = await fetch(`/api/predictions?type=${predictionType}`)
+
+        if (!response.ok) {
+          console.error("API response error:", response.status)
+          throw new Error(`Failed to fetch ${predictionType} predictions: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+        console.log("Predictions data received:", data)
+
+        if (!data || !data.predictions) {
+          throw new Error("Invalid response format from predictions API")
+        }
+
+        setPredictions(data.predictions)
+      } catch (fetchError) {
+        console.error(`Error fetching ${predictionType} predictions:`, fetchError)
+
+        // Use fallback mock data if the API call fails
+        setPredictions({
+          topProjects: "Unable to predict top projects at this time.",
+          weeklyHours: "Weekly hour predictions unavailable.",
+          conflicts: "Scheduling conflict analysis unavailable.",
+          recommendations: "Try again later for personalized recommendations.",
+          projectData: getMockProjectData(),
+        })
+
+        setError(`Failed to load predictions. Using fallback data.`)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [getMockProjectData])
+
+  useEffect(() => {
+    fetchPredictions(activeTab)
+  }, [activeTab, fetchPredictions])
+
+  const handleRefresh = () => {
+    fetchPredictions(activeTab)
+  }
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+  }
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case "increasing":
+        return <TrendingUp className="h-4 w-4 text-green-500" />
+      case "decreasing":
+        return <TrendingDown className="h-4 w-4 text-red-500" />
+      default:
+        return <Minus className="h-4 w-4 text-gray-500" />
+    }
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "good":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />
+      case "warning":
+        return <AlertTriangle className="h-4 w-4 text-amber-500" />
+      case "critical":
+        return <XCircle className="h-4 w-4 text-red-500" />
+      default:
+        return <AlertCircle className="h-4 w-4 text-gray-500" />
+    }
   }
 
   const renderContent = () => {

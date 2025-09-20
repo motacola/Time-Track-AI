@@ -70,7 +70,7 @@ export function ClientList() {
     <Card>
       <CardHeader>
         <CardTitle>Clients</CardTitle>
-        <CardDescription>Manage your agency's client relationships</CardDescription>
+        <CardDescription>Manage your agency&apos;s client relationships</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>

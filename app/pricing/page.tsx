@@ -50,7 +50,7 @@ export default function PricingPage() {
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">Simple, Transparent Pricing</h1>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl">
-                  Choose the plan that's right for your agency. All plans include a 14-day free trial.
+                  Choose the plan that&apos;s right for your agency. All plans include a 14-day free trial.
                 </p>
               </div>
             </div>
@@ -612,7 +612,7 @@ export default function PricingPage() {
               <div className="space-y-2">
                 <h3 className="text-xl font-bold">Can I cancel anytime?</h3>
                 <p className="text-muted-foreground">
-                  Yes, you can cancel your subscription at any time. For monthly plans, you'll have access until the end
+                  Yes, you can cancel your subscription at any time. For monthly plans, you&apos;ll have access until the end
                   of your current billing period.
                 </p>
               </div>
@@ -633,7 +633,7 @@ export default function PricingPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  Ready to Transform Your Agency's Workflow?
+                  Ready to Transform Your Agency&apos;s Workflow?
                 </h2>
                 <p className="max-w-[900px] text-primary-foreground/80 md:text-xl">
                   Start your 14-day free trial today. No credit card required.

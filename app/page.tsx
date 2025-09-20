@@ -45,7 +45,7 @@ export default function Home() {
               </div>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400 mt-8">
                 Our AI-powered timesheet tool makes tracking your time effortless. Simply tell us what you worked on,
-                and we'll handle the rest.
+                and we&apos;ll handle the rest.
               </p>
             </div>
             <div className="space-x-4">
@@ -119,7 +119,7 @@ export default function Home() {
                 Simple, transparent pricing
               </h2>
               <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                Choose the plan that's right for your team
+                Choose the plan that&apos;s right for your team
               </p>
             </div>
             <PricingTable />
