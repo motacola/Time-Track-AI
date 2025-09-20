@@ -103,19 +103,66 @@ export function NLTimesheetEntry() {
   }, [])
 
   const requestMicrophonePermission = async () => {
-    if (typeof window === "undefined" || !navigator?.mediaDevices?.getUserMedia) {
+    if (typeof window === "undefined") {
       return false
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      stream.getTracks().forEach((track) => track.stop())
-      return true
-    } catch (err) {
-      console.error("Microphone permission denied:", err)
-      setError("Microphone access was denied. Please enable it in your browser settings and try again.")
-      return false
+    const navAny = navigator as any
+
+    const tryStopTracks = (stream?: MediaStream) => {
+      try {
+        stream?.getTracks().forEach((track) => track.stop())
+      } catch (err) {
+        console.warn("Unable to stop mic tracks", err)
+      }
     }
+
+    const withLegacyApi = () =>
+      new Promise<boolean>((resolve) => {
+        const legacyGetUserMedia =
+          navAny.getUserMedia || navAny.webkitGetUserMedia || navAny.mozGetUserMedia || navAny.msGetUserMedia
+
+        if (!legacyGetUserMedia) {
+          resolve(false)
+          return
+        }
+
+        legacyGetUserMedia.call(
+          navigator,
+          { audio: true },
+          (stream: MediaStream) => {
+            tryStopTracks(stream)
+            resolve(true)
+          },
+          (err: Error) => {
+            console.error("Legacy getUserMedia denied:", err)
+            resolve(false)
+          },
+        )
+      })
+
+    const requestViaMediaDevices = async () => {
+      try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          return withLegacyApi()
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        tryStopTracks(stream)
+        return true
+      } catch (err) {
+        console.error("Microphone permission denied:", err)
+        return withLegacyApi()
+      }
+    }
+
+    const granted = await requestViaMediaDevices()
+
+    if (!granted) {
+      setError("Microphone access was denied or is unavailable. Please enable it in your browser settings and try again.")
+    }
+
+    return granted
   }
 
   const toggleVoiceInput = async () => {
@@ -137,7 +184,26 @@ export function NLTimesheetEntry() {
       if (!hasPermission) {
         return
       }
-      recognition.start()
+      try {
+        recognition.start()
+      } catch (startError) {
+        console.warn("Speech recognition start error. Attempting restart.", startError)
+        try {
+          recognition.stop()
+        } catch (stopError) {
+          console.warn("Speech recognition stop error", stopError)
+        }
+
+        setTimeout(() => {
+          try {
+            recognition.start()
+          } catch (retryError) {
+            console.error("Speech recognition retry failed", retryError)
+            setError("We couldn’t initialise voice capture. Please refresh or use manual entry.")
+            setIsListening(false)
+          }
+        }, 300)
+      }
     } catch (err) {
       console.error("Voice recognition error:", err)
       setError("We couldn’t access your microphone. Please check permissions and try again.")
