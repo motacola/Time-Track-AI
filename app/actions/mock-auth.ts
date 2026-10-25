@@ -5,10 +5,10 @@ import { logger } from "@/lib/logger"
 
 // Mock user credentials
 const MOCK_USER = {
-  email: "chrisbelgrave@gmail.com",
-  password: "123456",
+  email: process.env.MOCK_USER_EMAIL || "demo@example.com",
+  password: process.env.MOCK_USER_PASSWORD || "",
   id: "mock-user-id",
-  name: "Chris Belgrave",
+  name: process.env.MOCK_USER_NAME || "Demo User",
 }
 
 // Session cookie name
@@ -23,7 +23,7 @@ const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000
 export async function mockLogin(email: string, password: string) {
   try {
     // Check if credentials match
-    if (email !== MOCK_USER.email || password !== MOCK_USER.password) {
+    if (!MOCK_USER.password || email !== MOCK_USER.email || password !== MOCK_USER.password) {
       return { success: false, error: "Invalid email or password" }
     }
 
