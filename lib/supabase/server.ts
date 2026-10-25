@@ -1,19 +1,12 @@
 import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import type { Database } from "../types/supabase"
-import { cookies } from "next/headers"
 
 // Create a Supabase client for server-side operations
-export const createClient = (cookieStore = cookies()) => {
+export const createClient = () => {
   const supabaseUrl = process.env.SUPABASE_URL || "https://example.supabase.co"
   const supabaseKey = process.env.SUPABASE_ANON_KEY || "your-anon-key"
 
-  return createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-    },
-  })
+  return createSupabaseClient<Database>(supabaseUrl, supabaseKey)
 }
 
 // For backward compatibility
