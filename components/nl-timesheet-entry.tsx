@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Sparkles, Mic, Send } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "@/components/ui/use-toast"
 
 declare global {
   interface Window {
@@ -31,7 +31,6 @@ export function NLTimesheetEntry() {
   const router = useRouter()
   const supabase = createClient()
   const recognitionRef = useRef<any>(null)
-  const { toast } = useToast()
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY

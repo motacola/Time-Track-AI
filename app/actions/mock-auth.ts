@@ -5,10 +5,10 @@ import { logger } from "@/lib/logger"
 
 // Mock user credentials
 const MOCK_USER = {
-  email: "chrisbelgrave@gmail.com",
-  password: "123456",
+  email: process.env.MOCK_USER_EMAIL || "demo@example.com",
+  password: process.env.MOCK_USER_PASSWORD || "",
   id: "mock-user-id",
-  name: "Chris Belgrave",
+  name: process.env.MOCK_USER_NAME || "Demo User",
 }
 
 // Session cookie name
@@ -23,7 +23,7 @@ const SESSION_EXPIRY = 7 * 24 * 60 * 60 * 1000
 export async function mockLogin(email: string, password: string) {
   try {
     // Check if credentials match
-    if (email !== MOCK_USER.email || password !== MOCK_USER.password) {
+    if (!MOCK_USER.password || email !== MOCK_USER.email || password !== MOCK_USER.password) {
       return { success: false, error: "Invalid email or password" }
     }
 
@@ -38,7 +38,7 @@ export async function mockLogin(email: string, password: string) {
     }
 
     // Set session cookie
-    cookies().set({
+    (await cookies()).set({
       name: SESSION_COOKIE_NAME,
       value: JSON.stringify(session),
       httpOnly: true,
@@ -60,7 +60,7 @@ export async function mockLogin(email: string, password: string) {
 export async function mockLogout() {
   try {
     // Delete session cookie
-    cookies().delete(SESSION_COOKIE_NAME)
+    (await cookies()).delete(SESSION_COOKIE_NAME)
     return { success: true }
   } catch (error) {
     logger.error("Mock logout error", error as Error)
@@ -74,7 +74,7 @@ export async function mockLogout() {
 export async function mockGetSession() {
   try {
     // Get session cookie
-    const sessionCookie = cookies().get(SESSION_COOKIE_NAME)
+    const sessionCookie = (await cookies()).get(SESSION_COOKIE_NAME)
 
     if (!sessionCookie?.value) {
       return null
@@ -85,7 +85,7 @@ export async function mockGetSession() {
 
     // Check if session is expired
     if (new Date(session.expires) < new Date()) {
-      cookies().delete(SESSION_COOKIE_NAME)
+      (await cookies()).delete(SESSION_COOKIE_NAME)
       return null
     }
 
