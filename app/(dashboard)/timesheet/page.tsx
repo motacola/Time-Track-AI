@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Mic, Edit2 } from "lucide-react"
 
 export default async function TimesheetPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const {
     data: { session },
